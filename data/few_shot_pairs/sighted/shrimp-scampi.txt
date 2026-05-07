@@ -1,0 +1,28 @@
+
+────────────────────────────────────────────────────────────
+  PARSED RECIPE  [plain-text scraping]
+────────────────────────────────────────────────────────────
+  Title      : Garlic Shrimp Scampi Pasta
+  Servings   : 4
+  Prep Time  : (not found)
+  Cook Time  : for 6 minutes
+
+  INGREDIENTS  (8 items)
+    [Ingredients]
+      - 225  g  (8  oz )  spaghetti
+      - 3  tablespoons   butter
+      - 3  garlic  cloves
+      - 450 g (1  lb )  shrimp
+      - 1  teaspoon   salt
+      - 1 teaspoon black  pepper
+      - 1 teaspoon  red chile flakes
+      - ¼  cup  (25 g / 1 oz)  chopped   parsley
+
+  STEPS  (6)
+     1. Boil  the spaghetti in water until   al dente  . Meanwhile, melt the butter in a  pan  over medium heat.
+     2. Add the garlic and stir.
+     3. Add the shrimp and cook for 6 minutes, stirring occasionally, until they turn pink-red in color.
+     4. Season with salt and pepper, then stir in lemon juice, chili, and parsley.
+     5. Drain the pasta in a  colander  and stir into the pan of shrimp.
+     6. Divide the pasta between 4 plates and serve.
+────────────────────────────────────────────────────────────

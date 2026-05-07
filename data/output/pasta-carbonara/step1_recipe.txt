@@ -1,0 +1,32 @@
+
+────────────────────────────────────────────────────────────
+  PARSED RECIPE  [JSON-LD]
+────────────────────────────────────────────────────────────
+  Title      : Pasta Carbonara
+  Servings   : 6 serving(s)
+  Prep Time  : 5 minutes
+  Cook Time  : 20 minutes
+
+  INGREDIENTS  (9 items)
+    [Ingredients]
+      - 12 oz. pasta, any variety
+      - 8 pieces thick cut bacon (diced small)
+      - 1/2 whole medium onion, diced small
+      - 2 cloves garlic, minced
+      - 3 whole eggs
+      - 3/4 c. finely grated Parmesan
+      - 1/2 c. heavy cream
+      - Salt and plenty of black pepper
+      - 1/2 c. peas
+
+  STEPS  (6)
+     1. Cook pasta according to package directions.
+     2. While the pasta is cooking, fry the bacon until just barely crisp. Remove from the pan and drain on paper towels. Pour off all of the bacon grease, but don't clean the pan. Return the pan to the stove over medium-low heat and throw in the onions and garlic. Cook until golden brown. Set aside.
+     3. In a bowl, mix together eggs, Parmesan, cream, and salt and pepper until smooth.
+     4. When the pasta is done, reserve a cup or two of the pasta water. Drain the pasta and place it in a bowl. While the pasta is still really hot, slowly drizzle in the egg mixture, stirring the pasta the whole time. The sauce will become thick and should coat the pasta. Splash in a little hot pasta water if needed for consistency.
+     5. Halfway through, add the peas, bacon, and sauteed onion/garlic. Finish adding the sauce, stirring until it's all combined.
+     6. Serve immediately with extra Parmesan. Delish!
+
+  NOTES  (1)
+      - Ree Drummond's delicious recipe for Pasta Carbonara couldn't be easier to make. It's also the perfect dish to make for your family during the colder months.
+────────────────────────────────────────────────────────────
