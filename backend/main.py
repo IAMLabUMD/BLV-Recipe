@@ -5,13 +5,13 @@ import re
 from pathlib import Path
 from urllib import parse as urllib_parse
 
-from step1_parse_recipe import run_step1
-from step2_adapt_recipe import run_step2
-from step3_handle_tools import run_step3
-from step4_detect_visual_cues import run_step4
-from step5_replace_visual_cues import run_step5
-from step6_to_accessible_html import run_step6
-from step7_add_tool_links import run_step7
+from backend.pipeline.step1_parse_recipe import run_step1
+from backend.pipeline.step2_adapt_recipe import run_step2
+from backend.pipeline.step3_handle_tools import run_step3
+from backend.pipeline.step4_detect_visual_cues import run_step4
+from backend.pipeline.step5_replace_visual_cues import run_step5
+from backend.pipeline.step6_to_accessible_html import run_step6
+from backend.pipeline.step7_add_tool_links import run_step7
 
 
 def _get_output_dir_name(input_path: str | Path) -> str:
@@ -19,7 +19,7 @@ def _get_output_dir_name(input_path: str | Path) -> str:
     Extract a directory name from either a URL or a file path.
     """
     input_str = str(input_path).strip()
-    
+
     if input_str.startswith('http://') or input_str.startswith('https://'):
         # Extract meaningful name from URL
         parsed = urllib_parse.urlparse(input_str)

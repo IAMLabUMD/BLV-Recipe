@@ -461,12 +461,12 @@ def parse_html_file(file_path: str | Path) -> RawRecipe:
     """Parse a local HTML file into a RawRecipe."""
     file_path = Path(file_path)
     print(f"Parsing HTML file: {file_path}")
-    
+
     with open(file_path, 'r', encoding='utf-8') as f:
         raw = f.read()
-    
+
     source_url = str(file_path)
-    
+
     jsonld = _extract_jsonld_recipe(raw)
     if jsonld and jsonld['steps']:
         ing_sects: dict[str, list[str]] = {'Ingredients': jsonld['ingredients']}
@@ -518,11 +518,11 @@ def parse_html_file(file_path: str | Path) -> RawRecipe:
 def run_step1(input_path: str | Path, output_dir: str | Path | None = None) -> str:
     """
     Parse a recipe from either a URL or a local HTML file.
-    
+
     Args:
         input_path: A URL (starting with http:/https://) or path to a local HTML file
         output_dir: Directory to save the output. If None, uses current directory.
-    
+
     Returns:
         Path to the saved recipe file (step1_recipe.txt)
     """
@@ -530,23 +530,23 @@ def run_step1(input_path: str | Path, output_dir: str | Path | None = None) -> s
         output_dir = Path.cwd()
     else:
         output_dir = Path(output_dir)
-    
+
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Detect if input is a URL or file path
     input_str = str(input_path).strip()
     is_url = input_str.startswith('http://') or input_str.startswith('https://')
-    
+
     if is_url:
         recipe = parse_url_recipe(input_str)
         source_identifier = input_str
     else:
         recipe = parse_html_file(input_path)
         source_identifier = str(Path(input_path).name)
-    
+
     # Save the recipe summary to step1_recipe.txt
     output_file = output_dir / "step1_recipe.txt"
-    
+
     SEP = "─" * 60
     total_ings = sum(len(v) for v in recipe.ingredient_sections.values())
 
