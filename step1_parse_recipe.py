@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re, json, sys, os
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Optional
 from urllib import request as urllib_request, parse as urllib_parse
 from urllib.error import URLError
@@ -454,6 +455,136 @@ def parse_url_recipe(url: str) -> RawRecipe:
     )
     _write_parse_summary(recipe, method=method, url=url, out_dir=script_dir)
     return recipe
+
+
+def parse_html_file(file_path: str | Path) -> RawRecipe:
+    """Parse a local HTML file into a RawRecipe."""
+    file_path = Path(file_path)
+    print(f"Parsing HTML file: {file_path}")
+    
+    with open(file_path, 'r', encoding='utf-8') as f:
+        raw = f.read()
+    
+    source_url = str(file_path)
+    
+    jsonld = _extract_jsonld_recipe(raw)
+    if jsonld and jsonld['steps']:
+        ing_sects: dict[str, list[str]] = {'Ingredients': jsonld['ingredients']}
+
+        recipe = RawRecipe(
+            title               = jsonld['title'] or 'Untitled Recipe',
+            servings            = jsonld['servings'],
+            time_info           = '',
+            difficulty          = '',
+            ingredient_sections = ing_sects,
+            steps               = jsonld['steps'],
+            notes               = [jsonld['description']] if jsonld['description'] else [],
+            source_file         = source_url,
+            prep_time           = jsonld['prep_time'],
+            bake_time           = jsonld['cook_time'],
+        )
+        return recipe
+
+    lines     = _extract_clean_text(raw)
+    full_text = '\n'.join(lines)
+    title     = _find_title(lines)
+    servings  = _find_pattern(full_text, r'Servings?\s+([\d\-–]+[^\n]*)')
+    servings  = servings.split('\n')[0].strip() if servings else servings
+    time_info = _find_pattern(full_text, r'Time\s+([^\n]{5,60}?)(?:\n|Difficulty|Category)')
+    difficulty= _find_pattern(full_text, r'Difficulty\s+([^\n]{2,25}?)(?:\n|Cookbook|Ingredient)')
+
+    prep_time = _find_pattern(full_text, r'prep(?:aration)?[:\s]+([^\n,;]{3,40})')
+    bake_time = _find_pattern(
+        full_text,
+        r'(?:bak(?:ing|e)|cook(?:ing)?|total)[:\s]+([^\n,;]{3,40})'
+    )
+    prep_time = re.sub(r'^[~>]', '', prep_time).strip()
+    bake_time = re.sub(r'^[~>]', '', bake_time).strip()
+    ing_sects = _find_ingredients(lines)
+    html_steps = _find_steps_from_html(raw)
+    steps      = html_steps if html_steps else _find_steps(lines)
+    method     = "HTML <ol> extraction" if html_steps else "plain-text scraping"
+    notes      = _find_notes(lines)
+
+    recipe = RawRecipe(
+        title=title, servings=servings, time_info=time_info,
+        difficulty=difficulty, ingredient_sections=ing_sects,
+        steps=steps, notes=notes, source_file=source_url,
+        prep_time=prep_time, bake_time=bake_time,
+    )
+    return recipe
+
+
+def run_step1(input_path: str | Path, output_dir: str | Path | None = None) -> str:
+    """
+    Parse a recipe from either a URL or a local HTML file.
+    
+    Args:
+        input_path: A URL (starting with http:/https://) or path to a local HTML file
+        output_dir: Directory to save the output. If None, uses current directory.
+    
+    Returns:
+        Path to the saved recipe file (step1_recipe.txt)
+    """
+    if output_dir is None:
+        output_dir = Path.cwd()
+    else:
+        output_dir = Path(output_dir)
+    
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Detect if input is a URL or file path
+    input_str = str(input_path).strip()
+    is_url = input_str.startswith('http://') or input_str.startswith('https://')
+    
+    if is_url:
+        recipe = parse_url_recipe(input_str)
+        source_identifier = input_str
+    else:
+        recipe = parse_html_file(input_path)
+        source_identifier = str(Path(input_path).name)
+    
+    # Save the recipe summary to step1_recipe.txt
+    output_file = output_dir / "step1_recipe.txt"
+    
+    SEP = "─" * 60
+    total_ings = sum(len(v) for v in recipe.ingredient_sections.values())
+
+    lines: list[str] = []
+    lines.append(f"\n{SEP}")
+    lines.append(f"  PARSED RECIPE  [Step 1]")
+    lines.append(SEP)
+
+    lines.append(f"  Title      : {recipe.title}")
+    lines.append(f"  Source     : {source_identifier}")
+    lines.append(f"  Servings   : {recipe.servings    or '(not found)'}")
+    lines.append(f"  Prep Time  : {recipe.prep_time   or '(not found)'}")
+    lines.append(f"  Cook Time  : {recipe.bake_time   or '(not found)'}")
+    if recipe.difficulty:
+        lines.append(f"  Difficulty : {recipe.difficulty}")
+
+    lines.append(f"\n  INGREDIENTS  ({total_ings} items)")
+    for sect, items in recipe.ingredient_sections.items():
+        lines.append(f"    [{sect}]")
+        for item in items:
+            lines.append(f"      - {item}")
+
+    lines.append(f"\n  STEPS  ({len(recipe.steps)})")
+    for i, step in enumerate(recipe.steps, 1):
+        lines.append(f"    {i:>2}. {step.replace(chr(10), ' ')}")
+
+    if recipe.notes:
+        lines.append(f"\n  NOTES  ({len(recipe.notes)})")
+        for note in recipe.notes:
+            lines.append(f"      - {note}")
+
+    lines.append(SEP + "\n")
+
+    with open(output_file, 'w', encoding='utf-8') as fh:
+        fh.write('\n'.join(lines))
+
+    print(f"Saved parsed recipe → {output_file}")
+    return str(output_file)
 
 
 if __name__ == "__main__":

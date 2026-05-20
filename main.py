@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import re
 from pathlib import Path
+from urllib import parse as urllib_parse
 
 from step1_parse_recipe import run_step1
 from step2_adapt_recipe import run_step2
@@ -12,10 +14,31 @@ from step6_to_accessible_html import run_step6
 from step7_add_tool_links import run_step7
 
 
+def _get_output_dir_name(input_path: str | Path) -> str:
+    """
+    Extract a directory name from either a URL or a file path.
+    """
+    input_str = str(input_path).strip()
+    
+    if input_str.startswith('http://') or input_str.startswith('https://'):
+        # Extract meaningful name from URL
+        parsed = urllib_parse.urlparse(input_str)
+        segments = [s for s in parsed.path.split('/') if s]
+        name = segments[-1] if segments else parsed.netloc
+        # Remove file extensions
+        name = re.sub(r'\.(html?|php|aspx?)$', '', name, flags=re.I)
+        # Replace non-alphanumeric with underscore
+        name = re.sub(r'[^a-zA-Z0-9]+', '-', name).strip('-')
+        return name or 'recipe'
+    else:
+        # Use file stem for local files
+        return Path(input_path).stem
+
+
 def run_pipeline(input_html_path: str | Path) -> tuple[str, str, str, str, str, str, str]:
     base = Path(__file__).resolve().parent
-    input_path = Path(input_html_path)
-    output_dir = base / "data" / "output" / input_path.stem
+    output_dir_name = _get_output_dir_name(input_html_path)
+    output_dir = base / "data" / "output" / output_dir_name
     print("=" * 80)
     print("STEP 1 — Parse recipe HTML")
     step1_output = run_step1(input_html_path, output_dir=output_dir)
