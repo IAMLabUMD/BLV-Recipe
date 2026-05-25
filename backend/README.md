@@ -1,6 +1,6 @@
 # BLV-Recipe
 
-This project converts a recipe HTML file into an accessible, blind-friendly version.
+This project converts a recipe URL into an accessible, blind-friendly version.
 
 ## How the pipeline works
 
@@ -12,11 +12,19 @@ This project converts a recipe HTML file into an accessible, blind-friendly vers
 6. Convert the result to accessible HTML
 7. Add tool links
 
-## How to run
+## Running the App
 
-1. Install dependencies:
-	`pip install -r requirements.txt`
-2. Run the pipeline with an input HTML file:
-	`python main.py data/input/pasta-carbonara.html`
+1. Navigate to the backend folder and activate the virtual environment:
+```bash
+   cd backend
+   source .venv/bin/activate
+```
 
-The outputs are saved in `data/output/<recipe-name>/`.
+2. Start the server:
+```bash
+   python3 -m uvicorn main:app --reload
+```
+
+3. Open your browser and go to `http://127.0.0.1:8000`
+
+To stop the server, press `Ctrl+C` in the terminal.
