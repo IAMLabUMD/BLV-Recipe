@@ -1,25 +1,14 @@
 from __future__ import annotations
 
 import argparse
-import os
 from pathlib import Path
 
-from dotenv import load_dotenv
-from groq import Groq
+from pipeline.llm_client import LLMClient
 
-BASE_DIR = Path(__file__).resolve().parent
-MODEL_NAME = "llama-3.3-70b-versatile"
+BASE_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_OUTPUT_PATH = BASE_DIR / "data" / "output" / "step2_adapted_recipe.md"
 FEW_SHOT_DIR = BASE_DIR / "data" / "few_shot_pairs"
 TOOL_DICTIONARY_PATH = BASE_DIR / "data" / "tool_dictionary.txt"
-
-
-def _build_groq_client() -> Groq:
-    load_dotenv(dotenv_path=BASE_DIR / ".env")
-    api_key = os.getenv("GROQ_API_KEY")
-    if not api_key:
-        raise RuntimeError("GROQ_API_KEY is not set. Add it to .env.")
-    return Groq(api_key=api_key)
 
 
 def _read_text(path: Path) -> str:
@@ -114,16 +103,13 @@ def run_step2(step1_output_path: str | Path, output_dir: str | Path | None = Non
 
         BLIND-ADAPTED VERSION:"""
 
-    client = _build_groq_client()
-    print("Step 2: Calling Groq API...")
-    response = client.chat.completions.create(
-        model=MODEL_NAME,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": USER_PROMPT},
-        ],
+    print("Step 2: Calling API...")
+    client = LLMClient.from_step_name("step2_adapt_recipe")
+    response_text = client.chat(
+        system=SYSTEM_PROMPT,
+        user_message=USER_PROMPT,
     )
-    print("Step 2: Groq API call complete.")
+    print("Step 2: API call complete.")
 
     if output_dir:
       outdir = Path(output_dir)
@@ -131,8 +117,7 @@ def run_step2(step1_output_path: str | Path, output_dir: str | Path | None = Non
       outdir = DEFAULT_OUTPUT_PATH.parent
     outdir.mkdir(parents=True, exist_ok=True)
     output_path = outdir / DEFAULT_OUTPUT_PATH.name
-    output_text = response.choices[0].message.content if response.choices else ""
-    output_path.write_text(output_text or "", encoding="utf-8")
+    output_path.write_text(response_text or "", encoding="utf-8")
     return str(output_path)
 
 
@@ -141,7 +126,6 @@ def main() -> None:
     parser.add_argument("input_path", help="Path to the Step 1 recipe text file")
     args = parser.parse_args()
     output_path = run_step2(args.input_path)
-    print(output_path)
 
 
 if __name__ == "__main__":
