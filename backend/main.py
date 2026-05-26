@@ -27,6 +27,10 @@ LLMConfig.set_all_steps(
 
 app = FastAPI()
 
+# Track the current active task and cancellation flag
+current_generation_task = None
+generation_cancelled = False
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -83,42 +87,92 @@ def sse_message(event: str, data: dict) -> str:
 
 @app.post("/generate")
 async def generate(request: RecipeRequest):
+    global current_generation_task, generation_cancelled
+    generation_cancelled = False
+    current_generation_task = asyncio.current_task()
+
     async def stream():
+        global generation_cancelled
         try:
             base = Path(__file__).resolve().parent
             output_dir = base / "pipeline" / "data" / "output" / _get_output_dir_name(request.url)
 
+            if generation_cancelled:
+                yield sse_message("cancelled", {"message": "Recipe generation was cancelled."})
+                return
+
             yield sse_message("progress", {"step": 1, "total": 7, "message": "Parsing recipe..."})
-            step1_output = run_step1(request.url, output_dir=output_dir)
+            step1_output = await asyncio.to_thread(run_step1, request.url, output_dir=output_dir)
+
+            if generation_cancelled:
+                yield sse_message("cancelled", {"message": "Recipe generation was cancelled."})
+                return
 
             yield sse_message("progress", {"step": 2, "total": 7, "message": "Adapting recipe for accessibility..."})
-            step2_output = run_step2(step1_output, output_dir=output_dir)
+            step2_output = await asyncio.to_thread(run_step2, step1_output, output_dir=output_dir)
+
+            if generation_cancelled:
+                yield sse_message("cancelled", {"message": "Recipe generation was cancelled."})
+                return
 
             yield sse_message("progress", {"step": 3, "total": 7, "message": "Adding tool suggestions..."})
-            step3_output = run_step3(step2_output, output_dir=output_dir)
+            step3_output = await asyncio.to_thread(run_step3, step2_output, output_dir=output_dir)
+
+            if generation_cancelled:
+                yield sse_message("cancelled", {"message": "Recipe generation was cancelled."})
+                return
 
             yield sse_message("progress", {"step": 4, "total": 7, "message": "Detecting visual cues..."})
-            step4_output = run_step4(step3_output, output_dir=output_dir)
+            step4_output = await asyncio.to_thread(run_step4, step3_output, output_dir=output_dir)
+
+            if generation_cancelled:
+                yield sse_message("cancelled", {"message": "Recipe generation was cancelled."})
+                return
 
             yield sse_message("progress", {"step": 5, "total": 7, "message": "Replacing visual cues..."})
-            step5_output = run_step5(step4_output, output_dir=output_dir)
+            step5_output = await asyncio.to_thread(run_step5, step4_output, output_dir=output_dir)
+
+            if generation_cancelled:
+                yield sse_message("cancelled", {"message": "Recipe generation was cancelled."})
+                return
 
             yield sse_message("progress", {"step": 6, "total": 7, "message": "Converting to HTML..."})
-            step6_output = run_step6(step5_output, output_dir=output_dir)
+            step6_output = await asyncio.to_thread(run_step6, step5_output, output_dir=output_dir)
+
+            if generation_cancelled:
+                yield sse_message("cancelled", {"message": "Recipe generation was cancelled."})
+                return
 
             yield sse_message("progress", {"step": 7, "total": 7, "message": "Adding tool links..."})
-            step7_output = run_step7(step6_output, output_dir=output_dir)
+            step7_output = await asyncio.to_thread(run_step7, step6_output, output_dir=output_dir)
+
+            if generation_cancelled:
+                yield sse_message("cancelled", {"message": "Recipe generation was cancelled."})
+                return
 
             with open(step7_output, "r", encoding="utf-8") as f:
                 html_content = f.read()
 
             yield sse_message("complete", {"html": html_content})
 
+        except asyncio.CancelledError:
+            yield sse_message("cancelled", {"message": "Recipe generation was cancelled."})
         except Exception as e:
             traceback.print_exc()
             yield sse_message("error", {"message": str(e)})
+        finally:
+            global current_generation_task
+            current_generation_task = None
 
     return StreamingResponse(stream(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+@app.post("/cancel")
+async def cancel():
+    global current_generation_task, generation_cancelled
+    generation_cancelled = True
+    if current_generation_task and not current_generation_task.done():
+        current_generation_task.cancel()
+    return {"status": "cancelled"}
 
 # @app.get("/")
 # def index():

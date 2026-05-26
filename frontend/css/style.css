@@ -393,7 +393,7 @@ button.btn-primary:focus {
 .progress-bar {
   width: 100%;
   max-width: 400px;
-  height: 8px;
+  height: 12px;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   overflow: hidden;
@@ -405,6 +405,25 @@ button.btn-primary:focus {
     height: 100%;
     background-color: var(--color-primary);
     transition: width 0.4s ease;
+}
+
+.quit-button {
+  background-color: transparent;
+  color: var(--color-error);
+}
+
+.quit-button:hover:not(:disabled) {
+  background-color: var(--color-error-bg);
+}
+
+.quit-button:focus {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+}
+
+.quit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* ========== Output Section ========== */
