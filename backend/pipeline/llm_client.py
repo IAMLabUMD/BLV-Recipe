@@ -150,6 +150,7 @@ class LLMClient:
     ) -> str:
         """Make a Groq API call."""
         messages = [
+            {"role": "system", "content": system},
             {"role": "user", "content": user_message}
         ]
 
@@ -162,11 +163,7 @@ class LLMClient:
         if max_tokens:
             kwargs["max_tokens"] = max_tokens
 
-        # Add system prompt if supported
-        response = self._client.chat.completions.create(
-            system=system,
-            **kwargs
-        )
+        response = self._client.chat.completions.create(**kwargs)
 
         return response.choices[0].message.content
 
