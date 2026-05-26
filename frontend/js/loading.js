@@ -1,3 +1,4 @@
+const API_BASE_URL = 'https://spokenspoon.onrender.com';
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("loading.js started");
     const errorMessage = document.getElementById('errorMessage');
@@ -29,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // Tell the backend to cancel the task (don't await, just fire it off)
-        fetch('/cancel', { method: 'POST' }).catch(err => {
+        fetch(`${API_BASE_URL}/cancel`, { method: 'POST' }).catch(err => {
             console.log("Cancel endpoint failed (this is okay):", err.message);
         });
 
@@ -39,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         abortController = new AbortController();
-        const response = await fetch('/generate', {
+        const response = await fetch(`${API_BASE_URL}/generate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url: recipeUrl }),
