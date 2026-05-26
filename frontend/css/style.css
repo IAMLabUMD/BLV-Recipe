@@ -401,22 +401,10 @@ button.btn-primary:focus {
 }
 
 .progress-fill {
-  height: 100%;
-  background-color: var(--color-primary);
-  width: 30%;
-  animation: progress-animate 2s ease-in-out infinite;
-}
-
-@keyframes progress-animate {
-  0% {
-    width: 10%;
-  }
-  50% {
-    width: 90%;
-  }
-  100% {
-    width: 10%;
-  }
+    width: 0%;
+    height: 100%;
+    background-color: var(--color-primary);
+    transition: width 0.4s ease;
 }
 
 /* ========== Output Section ========== */

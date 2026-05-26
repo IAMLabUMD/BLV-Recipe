@@ -19,10 +19,12 @@
     <main class="container">
         <section class="loading-section">
             <h1>Converting Your Recipe</h1>
-            <p class="loading-message">Your recipe is being converted to an accessible format...</p>
+            <p id="loadingMessage" class="loading-message" aria-live="polite" aria-atomic="true">
+                Your recipe is being converted to an accessible format...
+            </p>
 
             <div class="progress-bar">
-                <div class="progress-fill"></div>
+                <div id="progressFill" class="progress-fill"></div>
             </div>
 
             <div id="errorMessage" class="error-message" role="alert" hidden></div>
