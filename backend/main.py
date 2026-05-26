@@ -27,13 +27,17 @@ LLMConfig.set_all_steps(
 
 app = FastAPI()
 
-# Track the current active task and cancellation flag
 current_generation_task = None
 generation_cancelled = False
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "https://spokenspoon.vercel.app",
+    ],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -174,13 +178,6 @@ async def cancel():
         current_generation_task.cancel()
     return {"status": "cancelled"}
 
-# @app.get("/")
-# def index():
-#     return FileResponse("../frontend/index.html")
-
-# @app.get("/{page}.html")
-# def serve_page(page: str):
-#     return FileResponse(f"../frontend/{page}.html")
 
 # @app.post("/test")
 # async def test(request: RecipeRequest):
