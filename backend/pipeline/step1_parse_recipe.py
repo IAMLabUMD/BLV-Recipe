@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import re, json, sys, os
+from html import unescape as _html_unescape
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 from urllib import request as urllib_request, parse as urllib_parse
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 
 
 @dataclass
@@ -31,9 +32,8 @@ def _extract_clean_text(html: str) -> list[str]:
                 '</dt>', '</dd>', '</tr>', '<br', '<br/>']:
         text = text.replace(tag, '\n')
     text = re.sub(r'<[^>]+>', ' ', text)
-    for ent, rep in [('&amp;', '&'), ('&lt;', '<'), ('&gt;', '>'),
-                     ('&#160;', ' '), ('&nbsp;', ' ')]:
-        text = text.replace(ent, rep)
+    text = _html_unescape(text)
+    text = text.replace('\xa0', ' ')  # non-breaking space → regular space
     text = re.sub(r'\[\s*edit\s*\|\s*edit\s*source\s*\]', '', text, flags=re.IGNORECASE)
     text = re.sub(
         r'Jump to content.*?(?=Apple|Cookbook|Garlic|Recipe|Ingredient)',
@@ -104,6 +104,8 @@ def _find_ingredients(lines: list[str]) -> dict[str, list[str]]:
         r'tsp?|tablespoon|teaspoon|pinch|dash|clove|can|jar|'
         r'bunch|sprig|stalk|fillet|pound|head|handful|wedge|slice))', re.I
     )
+    # Matches plain ingredient names with no quantity (e.g. "Cinnamon", "Salt to taste")
+    PLAIN_ING_RE = re.compile(r'^[A-Za-z][a-zA-Z\s\-,()/]{1,38}$')
     for line in lines:
         if STOP_RE.match(line):
             in_ing = False
@@ -115,6 +117,8 @@ def _find_ingredients(lines: list[str]) -> dict[str, list[str]]:
                 sections[current] = []
             continue
         if in_ing and AMT_RE.match(line):
+            sections.setdefault(current, []).append(line)
+        elif in_ing and PLAIN_ING_RE.match(line) and len(line) <= 40:
             sections.setdefault(current, []).append(line)
         elif not in_ing and AMT_RE.match(line) and len(line.split()) <= 12:
             sections.setdefault("Ingredients", []).append(line)
@@ -198,35 +202,52 @@ def _find_notes(lines: list[str]) -> list[str]:
     return notes
 
 
+def _clean_html_text(html: str) -> str:
+    text = re.sub(r'<[^>]+>', ' ', html)
+    text = _html_unescape(text)
+    text = text.replace('\xa0', ' ')
+    return ' '.join(text.split())
+
+
 def _find_steps_from_html(raw_html: str) -> list[str]:
+    # 1. Wikibooks: <ol> anchored by id="Procedure"
     proc_m = re.search(r'id=["\']Procedure["\']', raw_html, re.IGNORECASE)
-    if not proc_m:
-        return []
+    if proc_m:
+        after = raw_html[proc_m.start():]
+        stop_m = re.search(
+            r'<h2[^>]*>|id=["\'](?:Notes?|Tips?|Nutritional|Variations?|See_also|References?)["\']',
+            after[100:], re.IGNORECASE
+        )
+        end_idx = (stop_m.start() + 100) if stop_m else 10000
+        section = after[:end_idx]
+        steps: list[str] = []
+        for ol in re.findall(r'<ol[^>]*>(.*?)</ol>', section, re.DOTALL | re.IGNORECASE):
+            for item in re.findall(r'<li[^>]*>(.*?)</li>', ol, re.DOTALL | re.IGNORECASE):
+                text = _clean_html_text(item)
+                if len(text) > 10:
+                    steps.append(text)
+        if steps:
+            return steps
 
-    after = raw_html[proc_m.start():]
+    # 2. Commercial sites: find the <ol> whose items look like recipe steps
+    best: list[str] = []
+    for ol in re.findall(r'<ol[^>]*>(.*?)</ol>', raw_html, re.DOTALL | re.IGNORECASE):
+        raw_items = re.findall(r'<li[^>]*>(.*?)</li>', ol, re.DOTALL | re.IGNORECASE)
+        if len(raw_items) < 2:
+            continue
+        cleaned = []
+        for item in raw_items:
+            text = _clean_html_text(item)
+            # Strip leading "Step N" prefix (Pioneer Woman style)
+            text = re.sub(r'^Step\s+\d+\s*', '', text, flags=re.IGNORECASE).strip()
+            cleaned.append(text)
+        has_step_prefix = any(re.match(r'^Step\s+\d+', _clean_html_text(i), re.I)
+                              for i in raw_items)
+        avg_len = sum(len(t) for t in cleaned) / len(cleaned)
+        if (has_step_prefix or avg_len > 60) and len(cleaned) > len(best):
+            best = [t for t in cleaned if len(t) > 10]
 
-    stop_m = re.search(
-        r'<h2[^>]*>|id=["\'](?:Notes?|Tips?|Nutritional|Variations?|See_also|References?)["\']',
-        after[100:],
-        re.IGNORECASE
-    )
-    end_idx = (stop_m.start() + 100) if stop_m else 10000
-    section = after[:end_idx]
-
-    ol_blocks = re.findall(r'<ol[^>]*>(.*?)</ol>', section, re.DOTALL | re.IGNORECASE)
-
-    steps: list[str] = []
-    for ol in ol_blocks:
-        for item in re.findall(r'<li[^>]*>(.*?)</li>', ol, re.DOTALL | re.IGNORECASE):
-            text = re.sub(r'<[^>]+>', ' ', item)
-            for ent, rep in [('&amp;', '&'), ('&lt;', '<'), ('&gt;', '>'),
-                             ('&#160;', ' '), ('&nbsp;', ' ')]:
-                text = text.replace(ent, rep)
-            text = ' '.join(text.split())
-            if len(text) > 10:
-                steps.append(text)
-
-    return steps
+    return best
 
 
 def _parse_iso8601_duration(duration: str) -> str:
@@ -267,7 +288,12 @@ def _extract_jsonld_recipe(raw_html: str) -> Optional[dict]:
         elif isinstance(data, dict):
             candidates = data.get('@graph', [data])
         for obj in candidates:
-            if isinstance(obj, dict) and obj.get('@type') in ('Recipe', ['Recipe']):
+            if not isinstance(obj, dict):
+                continue
+            obj_type = obj.get('@type', '')
+            is_recipe = (obj_type == 'Recipe' or
+                         (isinstance(obj_type, list) and 'Recipe' in obj_type))
+            if is_recipe:
                 recipe = obj
                 break
         if recipe:
@@ -290,16 +316,19 @@ def _extract_jsonld_recipe(raw_html: str) -> Optional[dict]:
     cook_time = _parse_iso8601_duration(recipe.get('cookTime', '')
                                         or recipe.get('totalTime', ''))
 
+    def _decode(t: str) -> str:
+        return _html_unescape(t).replace('\xa0', ' ')
+
     raw_ings = recipe.get('recipeIngredient', [])
-    ingredients = [str(i).strip() for i in raw_ings if str(i).strip()]
+    ingredients = [_decode(str(i).strip()) for i in raw_ings if str(i).strip()]
 
     raw_steps = recipe.get('recipeInstructions', [])
     steps: list[str] = []
     for s in raw_steps:
         if isinstance(s, str):
-            text = s.strip()
+            text = _decode(s.strip())
         elif isinstance(s, dict):
-            text = (s.get('text') or s.get('name') or '').strip()
+            text = _decode((s.get('text') or s.get('name') or '').strip())
             if not text and s.get('@type') == 'HowToSection':
                 for sub in s.get('itemListElement', []):
                     sub_text = (sub.get('text') or sub.get('name') or '').strip()
@@ -326,25 +355,81 @@ def _extract_jsonld_recipe(raw_html: str) -> Optional[dict]:
     }
 
 
+def _request_headers(url: str) -> dict[str, str]:
+    parsed = urllib_parse.urlparse(url)
+    origin = f"{parsed.scheme}://{parsed.netloc}" if parsed.scheme and parsed.netloc else ""
+    headers = {
+        'User-Agent': (
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+            'AppleWebKit/537.36 (KHTML, like Gecko) '
+            'Chrome/124.0.0.0 Safari/537.36'
+        ),
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+        'Upgrade-Insecure-Requests': '1',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-User': '?1',
+    }
+    if origin:
+        headers['Referer'] = origin + '/'
+    return headers
+
+
+def _fetch_html_with_httpx(url: str, headers: dict[str, str]) -> str:
+    try:
+        import httpx
+    except ImportError as exc:
+        raise RuntimeError(
+            "Could not fetch the recipe page because the site blocked the request, "
+            "and the HTTP fallback dependency is not installed."
+        ) from exc
+
+    with httpx.Client(
+        headers=headers,
+        follow_redirects=True,
+        timeout=20,
+    ) as client:
+        resp = client.get(url)
+
+    if resp.status_code == 403:
+        raise RuntimeError(
+            "The recipe website returned 403 Forbidden. That site is blocking "
+            "server-side scraping, so this app cannot read the recipe from that URL. "
+            "Try a different recipe link or save the recipe page as an HTML file."
+        )
+
+    try:
+        resp.raise_for_status()
+    except httpx.HTTPStatusError as exc:
+        raise RuntimeError(
+            f"The recipe website returned HTTP {resp.status_code} while fetching the page."
+        ) from exc
+
+    return resp.text
+
+
 def _fetch_html(url: str) -> str:
-    req = urllib_request.Request(
-        url,
-        headers={
-            'User-Agent': (
-                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
-                'AppleWebKit/537.36 (KHTML, like Gecko) '
-                'Chrome/124.0.0.0 Safari/537.36'
-            ),
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-        }
-    )
-    with urllib_request.urlopen(req, timeout=15) as resp:
-        charset = 'utf-8'
-        ct = resp.headers.get_content_charset()
-        if ct:
-            charset = ct
-        return resp.read().decode(charset, errors='replace')
+    headers = _request_headers(url)
+    req = urllib_request.Request(url, headers=headers)
+    try:
+        with urllib_request.urlopen(req, timeout=15) as resp:
+            charset = 'utf-8'
+            ct = resp.headers.get_content_charset()
+            if ct:
+                charset = ct
+            return resp.read().decode(charset, errors='replace')
+    except HTTPError as exc:
+        if exc.code == 403:
+            return _fetch_html_with_httpx(url, headers)
+        raise RuntimeError(
+            f"The recipe website returned HTTP {exc.code} while fetching the page."
+        ) from exc
+    except URLError as exc:
+        return _fetch_html_with_httpx(url, headers)
 
 
 def _stem_from_url(url: str) -> str:
@@ -408,9 +493,10 @@ def parse_url_recipe(url: str) -> RawRecipe:
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     jsonld = _extract_jsonld_recipe(raw)
+
+    # Case 1: JSON-LD has everything — cleanest possible data
     if jsonld and jsonld['steps']:
         ing_sects: dict[str, list[str]] = {'Ingredients': jsonld['ingredients']}
-
         recipe = RawRecipe(
             title               = jsonld['title'] or 'Untitled Recipe',
             servings            = jsonld['servings'],
@@ -426,6 +512,28 @@ def parse_url_recipe(url: str) -> RawRecipe:
         _write_parse_summary(recipe, method="JSON-LD", url=url, out_dir=script_dir)
         return recipe
 
+    # Case 2: JSON-LD has title/ingredients but steps are empty (e.g. Pioneer Woman
+    # newer articles store instructions only in the HTML <ol>, not in JSON-LD)
+    if jsonld and jsonld['ingredients']:
+        html_steps = _find_steps_from_html(raw)
+        if html_steps:
+            ing_sects = {'Ingredients': jsonld['ingredients']}
+            recipe = RawRecipe(
+                title               = jsonld['title'] or 'Untitled Recipe',
+                servings            = jsonld['servings'],
+                time_info           = '',
+                difficulty          = '',
+                ingredient_sections = ing_sects,
+                steps               = html_steps,
+                notes               = [jsonld['description']] if jsonld['description'] else [],
+                source_file         = url,
+                prep_time           = jsonld['prep_time'],
+                bake_time           = jsonld['cook_time'],
+            )
+            _write_parse_summary(recipe, method="JSON-LD + HTML steps", url=url, out_dir=script_dir)
+            return recipe
+
+    # Case 3: No usable JSON-LD — plain-text scraping (Wikibooks / generic fallback)
     lines     = _extract_clean_text(raw)
     full_text = '\n'.join(lines)
     title     = _find_title(lines)
@@ -470,7 +578,6 @@ def parse_html_file(file_path: str | Path) -> RawRecipe:
     jsonld = _extract_jsonld_recipe(raw)
     if jsonld and jsonld['steps']:
         ing_sects: dict[str, list[str]] = {'Ingredients': jsonld['ingredients']}
-
         recipe = RawRecipe(
             title               = jsonld['title'] or 'Untitled Recipe',
             servings            = jsonld['servings'],
@@ -503,37 +610,24 @@ def parse_html_file(file_path: str | Path) -> RawRecipe:
     ing_sects = _find_ingredients(lines)
     html_steps = _find_steps_from_html(raw)
     steps      = html_steps if html_steps else _find_steps(lines)
-    method     = "HTML <ol> extraction" if html_steps else "plain-text scraping"
     notes      = _find_notes(lines)
 
-    recipe = RawRecipe(
+    return RawRecipe(
         title=title, servings=servings, time_info=time_info,
         difficulty=difficulty, ingredient_sections=ing_sects,
         steps=steps, notes=notes, source_file=source_url,
         prep_time=prep_time, bake_time=bake_time,
     )
-    return recipe
 
 
 def run_step1(input_path: str | Path, output_dir: str | Path | None = None) -> str:
-    """
-    Parse a recipe from either a URL or a local HTML file.
-
-    Args:
-        input_path: A URL (starting with http:/https://) or path to a local HTML file
-        output_dir: Directory to save the output. If None, uses current directory.
-
-    Returns:
-        Path to the saved recipe file (step1_recipe.txt)
-    """
+    """Parse a recipe from a URL or local HTML file; save result to step1_recipe.txt."""
     if output_dir is None:
         output_dir = Path.cwd()
     else:
         output_dir = Path(output_dir)
-
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Detect if input is a URL or file path
     input_str = str(input_path).strip()
     is_url = input_str.startswith('http://') or input_str.startswith('https://')
 
@@ -544,7 +638,6 @@ def run_step1(input_path: str | Path, output_dir: str | Path | None = None) -> s
         recipe = parse_html_file(input_path)
         source_identifier = str(Path(input_path).name)
 
-    # Save the recipe summary to step1_recipe.txt
     output_file = output_dir / "step1_recipe.txt"
 
     SEP = "─" * 60
@@ -554,7 +647,6 @@ def run_step1(input_path: str | Path, output_dir: str | Path | None = None) -> s
     lines.append(f"\n{SEP}")
     lines.append(f"  PARSED RECIPE  [Step 1]")
     lines.append(SEP)
-
     lines.append(f"  Title      : {recipe.title}")
     lines.append(f"  Source     : {source_identifier}")
     lines.append(f"  Servings   : {recipe.servings    or '(not found)'}")
@@ -594,7 +686,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        r = parse_url_recipe(sys.argv[1])
-    except URLError as e:
-        print(f"Error fetching URL: {e}")
+        run_step1(sys.argv[1])
+    except (RuntimeError, URLError, ValueError) as e:
+        print(f"Error parsing recipe: {e}")
         sys.exit(1)
