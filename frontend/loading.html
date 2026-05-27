@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Converting Recipe - The Blind Kitchen Recipe Adapter</title>
     <link rel="stylesheet" href="./css/style.css">
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css"
+    />
 </head>
 <body>
     <nav aria-label="Main navigation">
@@ -18,9 +28,11 @@
 
     <main class="container">
         <section class="loading-section">
-            <h1>Converting Your Recipe</h1>
+            <h1>Converting your recipe</h1>
+            <p class="hero-subtitle">This usually takes about 3 minutes.</p>
+
             <p id="loadingMessage" class="loading-message" aria-live="polite" aria-atomic="true">
-                Your recipe is being converted to an accessible format...
+                Your recipe is being converted...
             </p>
 
             <div class="progress-bar">
@@ -30,6 +42,7 @@
             <div id="errorMessage" class="error-message" role="alert" hidden></div>
 
             <button id="quitButton" class="quit-button">
+                <i class="ph ph-x"></i>
                 Quit and return to home
             </button>
         </section>

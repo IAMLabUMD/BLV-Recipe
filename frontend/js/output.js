@@ -1,14 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Get the recipe HTML from sessionStorage
     const recipeHTML = sessionStorage.getItem('recipeHTML');
 
-    // If recipe data is missing or empty, redirect back to index
     if (!recipeHTML || recipeHTML.trim() === '') {
         window.location.href = 'index.html';
         return;
     }
 
-    // Get the display section where we'll inject the iframe
     const recipeDisplay = document.getElementById('recipeDisplay');
 
     // Create an iframe to safely display the recipe HTML

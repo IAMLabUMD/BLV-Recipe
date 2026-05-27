@@ -8,6 +8,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const recipeUrlInput = document.getElementById('recipeUrl');
     const errorMessage = document.getElementById('errorMessage');
+    const floatingLabel = document.querySelector('.floating-label');
+
+    // Handle floating label visibility
+    if (floatingLabel && recipeUrlInput) {
+        const updateLabelPosition = () => {
+            if (recipeUrlInput.value || document.activeElement === recipeUrlInput) {
+                floatingLabel.classList.add('active');
+            } else {
+                floatingLabel.classList.remove('active');
+            }
+        };
+
+        recipeUrlInput.addEventListener('input', updateLabelPosition);
+        recipeUrlInput.addEventListener('focus', updateLabelPosition);
+        recipeUrlInput.addEventListener('blur', updateLabelPosition);
+    }
 
     submitBtn.addEventListener('click', () => {
         errorMessage.textContent = '';

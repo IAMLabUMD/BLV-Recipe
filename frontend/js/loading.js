@@ -74,13 +74,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const data = JSON.parse(line.slice(6));
 
                     if (currentEvent === 'progress') {
-                        const percent = Math.round((data.step / data.total) * 100);
+                        const stepPercentages = {
+                            0: 0,
+                            1: 5,
+                            2: 20,
+                            3: 30,
+                            4: 40,
+                            5: 50,
+                            6: 70,
+                            7: 80
+                        };
+                        const percent = stepPercentages[data.step - 1] || 100;
                         if (progressFill) progressFill.style.width = `${percent}%`;
                         if (loadingMessage) loadingMessage.textContent = `${percent}% complete. ${data.message}`;
                     }
 
                     if (currentEvent === 'cancelled') {
-                        // User cancelled the process
                         window.location.href = 'index.html';
                         return;
                     }

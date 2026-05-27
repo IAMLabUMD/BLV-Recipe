@@ -110,49 +110,49 @@ async def generate(request: RecipeRequest):
                 yield sse_message("cancelled", {"message": "Recipe generation was cancelled."})
                 return
 
-            yield sse_message("progress", {"step": 1, "total": 7, "message": "Parsing recipe..."})
+            yield sse_message("progress", {"step": 1, "total": 7, "message": "Parsing recipe…"})
             step1_output = await asyncio.to_thread(run_step1, request.url, output_dir=output_dir)
 
             if generation_cancelled:
                 yield sse_message("cancelled", {"message": "Recipe generation was cancelled."})
                 return
 
-            yield sse_message("progress", {"step": 2, "total": 7, "message": "Adapting recipe for accessibility..."})
+            yield sse_message("progress", {"step": 2, "total": 7, "message": "Converting ingredients and steps…"})
             step2_output = await asyncio.to_thread(run_step2, step1_output, output_dir=output_dir)
 
             if generation_cancelled:
                 yield sse_message("cancelled", {"message": "Recipe generation was cancelled."})
                 return
 
-            yield sse_message("progress", {"step": 3, "total": 7, "message": "Adding tool suggestions..."})
+            yield sse_message("progress", {"step": 3, "total": 7, "message": "Adding tool suggestions and alternatives…"})
             step3_output = await asyncio.to_thread(run_step3, step2_output, output_dir=output_dir)
 
             if generation_cancelled:
                 yield sse_message("cancelled", {"message": "Recipe generation was cancelled."})
                 return
 
-            yield sse_message("progress", {"step": 4, "total": 7, "message": "Detecting visual cues..."})
+            yield sse_message("progress", {"step": 4, "total": 7, "message": "Detecting leftover visual cues…"})
             step4_output = await asyncio.to_thread(run_step4, step3_output, output_dir=output_dir)
 
             if generation_cancelled:
                 yield sse_message("cancelled", {"message": "Recipe generation was cancelled."})
                 return
 
-            yield sse_message("progress", {"step": 5, "total": 7, "message": "Replacing visual cues..."})
+            yield sse_message("progress", {"step": 5, "total": 7, "message": "Replacing visual cues…"})
             step5_output = await asyncio.to_thread(run_step5, step4_output, output_dir=output_dir)
 
             if generation_cancelled:
                 yield sse_message("cancelled", {"message": "Recipe generation was cancelled."})
                 return
 
-            yield sse_message("progress", {"step": 6, "total": 7, "message": "Converting to HTML..."})
+            yield sse_message("progress", {"step": 6, "total": 7, "message": "Converting to HTML…"})
             step6_output = await asyncio.to_thread(run_step6, step5_output, output_dir=output_dir)
 
             if generation_cancelled:
                 yield sse_message("cancelled", {"message": "Recipe generation was cancelled."})
                 return
 
-            yield sse_message("progress", {"step": 7, "total": 7, "message": "Adding tool links..."})
+            yield sse_message("progress", {"step": 7, "total": 7, "message": "Adding tool links…"})
             step7_output = await asyncio.to_thread(run_step7, step6_output, output_dir=output_dir)
 
             if generation_cancelled:
