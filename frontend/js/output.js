@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set up the download button
     const downloadBtn = document.getElementById('downloadBtn');
 
-    downloadBtn.addEventListener('click', () => {
+    downloadBtn.addEventListener('click', async () => {
         // Create a Blob from the HTML string
         const blob = new Blob([recipeHTML], { type: 'text/html' });
 
