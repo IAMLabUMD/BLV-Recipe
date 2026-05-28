@@ -58,6 +58,29 @@ function showError(message) {
 }
 
 /**
+ * Inject font-family CSS into HTML content for iframe display
+ */
+function injectFontStyles(htmlContent) {
+  const fontStyle = `
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600&display=swap');
+      body {
+        font-family: "Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+    </style>
+  `;
+  
+  // Insert style tag after <head> opening tag
+  const headMatch = htmlContent.match(/<head[^>]*>/i);
+  if (headMatch) {
+    const insertIndex = headMatch.index + headMatch[0].length;
+    return htmlContent.slice(0, insertIndex) + fontStyle + htmlContent.slice(insertIndex);
+  }
+  
+  return htmlContent;
+}
+
+/**
  * Load and display a single recipe
  */
 async function loadRecipe() {
@@ -95,6 +118,8 @@ async function loadRecipe() {
       if (htmlContent.startsWith('```html')) {
         htmlContent = currentRecipe.output_html.replace(/^```html\n/, '').replace(/\n```$/, '');
       }
+      // Inject font styles before displaying in iframe
+      htmlContent = injectFontStyles(htmlContent);
       recipeFrameEl.srcdoc = htmlContent;
     }
 

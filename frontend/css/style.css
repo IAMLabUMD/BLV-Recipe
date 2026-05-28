@@ -513,13 +513,13 @@ button.btn-primary:focus {
 
 .recipe-display {
   background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
   padding: var(--spacing-lg);
   margin-top: var(--spacing-xl);
 }
 
 .recipe-display iframe {
   width: 100%;
-  border: 1px solid var(--color-border);
   min-height: 600px;
 }
 
@@ -807,9 +807,8 @@ button.btn-primary:focus {
 }
 
 .recipe-actions {
-  margin-bottom: var(--spacing-xl);
-  padding-bottom: var(--spacing-xl);
-  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 .recipe-error {
@@ -827,6 +826,25 @@ button.btn-primary:focus {
 .recipe-error-details {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
+}
+
+.back-link a {
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: var(--font-size-body);
+  font-weight: 500;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  position: relative;
+}
+
+.back-link a:hover {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.back-link a:focus {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
 }
 
 /* ========== Responsive Design ========== */
