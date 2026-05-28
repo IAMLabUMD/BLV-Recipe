@@ -18,21 +18,27 @@
 
     <main class="container">
         <header>
+                <div class="recipe-title-container">
+                  <h1 id="recipeTitle">Loading...</h1>
+                  <section id="recipeActions" class="recipe-actions" hidden>
+                    <div class="btn-group">
+                        <a id="originalRecipeLink" href="#" target="_blank" rel="noopener noreferrer" class="btn-secondary">
+                            <i class="ph ph-arrow-square-out"></i> Open Original Recipe
+                        </a>
+                        <button id="downloadBtn" class="btn-primary">
+                            <i class="ph ph-download-simple"></i> Download Recipe
+                        </button>
+                    </div>
+                  </section>
+                </div>
+            </header>
+        <header>
             <h1>Your Adapted Recipe</h1>
         </header>
 
-        <section class="output-actions">
-            <div class="btn-group">
-                <button id="downloadBtn" class="btn-primary">
-                    Download Recipe
-                </button>
-                <a href="index.html" class="btn-secondary">Convert Another Recipe</a>
-            </div>
-        </section>
-
-        <section id="recipeDisplay" class="recipe-display">
-            <!-- Recipe HTML will be injected here in an iframe -->
-        </section>
+        <div id="recipeDisplay" class="recipe-display" hidden>
+            <iframe id="recipeFrame" sandbox="allow-same-origin" title="Recipe content"></iframe>
+        </div>
     </main>
 
     <script src="./js/output.js"></script>

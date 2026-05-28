@@ -1,52 +1,101 @@
-const API_BASE_URL = 'https://spokenspoon.onrender.com';
+/**
+ * Output Display Page
+ * Displays an adapted recipe from sessionStorage with download
+ */
 
-document.addEventListener('DOMContentLoaded', () => {
-    const recipeHTML = sessionStorage.getItem('recipeHTML');
-    const recipeRecordId = sessionStorage.getItem('recipeRecordId');
+const API_BASE_URL = "https://spokenspoon.onrender.com";
 
-    if (!recipeHTML || recipeHTML.trim() === '') {
-        window.location.href = 'index.html';
+const recipeTitleEl = document.getElementById("recipeTitle");
+const recipeActionsEl = document.getElementById("recipeActions");
+const recipeDisplayEl = document.getElementById("recipeDisplay");
+const recipeFrameEl = document.getElementById("recipeFrame");
+const originalRecipeLinkEl = document.getElementById("originalRecipeLink");
+const downloadBtnEl = document.getElementById("downloadBtn");
+
+let currentRecipeHTML = null;
+let currentRecipeRecordId = null;
+
+/**
+ * Load recipe data from sessionStorage
+ */
+function loadRecipeFromStorage() {
+    currentRecipeHTML = sessionStorage.getItem("recipeHTML");
+    currentRecipeRecordId = sessionStorage.getItem("recipeRecordId");
+
+    if (!currentRecipeHTML || currentRecipeHTML.trim() === "") {
+        window.location.href = "index.html";
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Display the recipe in an iframe
+ */
+function displayRecipe() {
+    recipeFrameEl.srcdoc = currentRecipeHTML;
+    recipeDisplayEl.hidden = false;
+}
+
+/**
+ * Mark recipe as downloaded via API
+ */
+async function markRecipeDownloaded() {
+    if (!currentRecipeRecordId) {
         return;
     }
 
-    const recipeDisplay = document.getElementById('recipeDisplay');
+    try {
+        await fetch(`${API_BASE_URL}/mark-downloaded/${currentRecipeRecordId}`, {
+        method: "POST"
+        });
+    } catch (err) {
+        console.error("Failed to mark download:", err);
+    }
+}
 
-    const iframe = document.createElement('iframe');
-    iframe.style.width = '100%';
-    iframe.style.height = '600px';
-    iframe.style.border = 'none';
-    iframe.title = 'Recipe content';
+/**
+ * Download the recipe as an HTML file
+ */
+async function downloadRecipe() {
+    const blob = new Blob([currentRecipeHTML], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
 
-    iframe.srcdoc = recipeHTML;
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "accessible-recipe.html";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 
-    recipeDisplay.appendChild(iframe);
+    await markRecipeDownloaded();
+}
 
-    const downloadBtn = document.getElementById('downloadBtn');
-
-    downloadBtn.addEventListener('click', async () => {
-        const blob = new Blob([recipeHTML], { type: 'text/html' });
-
-        const anchor = document.createElement('a');
-        anchor.href = URL.createObjectURL(blob);
-        anchor.download = 'accessible-recipe.html';
-        anchor.click();
-
-        URL.revokeObjectURL(anchor.href);
-
-        if (recipeRecordId) {
-            try {
-                await fetch(
-                    `${API_BASE_URL}/mark-downloaded/${recipeRecordId}`,
-                    {
-                        method: 'POST'
-                    }
-                );
-            } catch (err) {
-                console.log("Failed to mark download:", err);
-            }
-        }
+/**
+ * Set up event listeners
+ */
+function setupEventListeners() {
+    downloadBtnEl.addEventListener("click", () => {
+        downloadRecipe();
     });
+}
 
-    sessionStorage.removeItem('recipeHTML');
-    sessionStorage.removeItem('recipeRecordId');
+/**
+ * Clean up sessionStorage
+ */
+function cleanupSessionStorage() {
+    sessionStorage.removeItem("recipeHTML");
+    sessionStorage.removeItem("recipeRecordId");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (!loadRecipeFromStorage()) {
+        return;
+    }
+
+    displayRecipe();
+    setupEventListeners();
+    cleanupSessionStorage();
 });

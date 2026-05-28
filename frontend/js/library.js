@@ -46,6 +46,13 @@ function createRecipeCard(recipe) {
   const buttonsContainer = document.createElement("div");
   buttonsContainer.className = "recipe-card-buttons";
 
+  // Button: View adapted recipe
+  const viewAdaptedBtn = document.createElement("a");
+  viewAdaptedBtn.href = `recipe.html?id=${recipe.id}`;
+  viewAdaptedBtn.className = "btn-view-adapted";
+  viewAdaptedBtn.innerHTML = '<i class="ph ph-book-open-text"></i> View Adapted Recipe';
+  buttonsContainer.appendChild(viewAdaptedBtn);
+
   // Button: Open original recipe
   const openOriginalBtn = document.createElement("a");
   openOriginalBtn.href = recipe.recipe_url;
@@ -54,13 +61,6 @@ function createRecipeCard(recipe) {
   openOriginalBtn.className = "btn-open-original";
   openOriginalBtn.innerHTML = '<i class="ph ph-arrow-square-out"></i> Open Original';
   buttonsContainer.appendChild(openOriginalBtn);
-
-  // Button: View adapted recipe
-  const viewAdaptedBtn = document.createElement("a");
-  viewAdaptedBtn.href = `recipe.html?id=${recipe.id}`;
-  viewAdaptedBtn.className = "btn-view-adapted";
-  viewAdaptedBtn.innerHTML = '<i class="ph ph-book-open-text"></i> View Adapted Recipe';
-  buttonsContainer.appendChild(viewAdaptedBtn);
 
   card.appendChild(buttonsContainer);
 

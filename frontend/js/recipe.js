@@ -91,7 +91,11 @@ async function loadRecipe() {
     }
 
     if (currentRecipe.output_html) {
-      recipeFrameEl.srcdoc = currentRecipe.output_html;
+      let htmlContent = currentRecipe.output_html;
+      if (htmlContent.startsWith('```html')) {
+        htmlContent = currentRecipe.output_html.replace(/^```html\n/, '').replace(/\n```$/, '');
+      }
+      recipeFrameEl.srcdoc = htmlContent;
     }
 
     recipeDisplayEl.hidden = false;
