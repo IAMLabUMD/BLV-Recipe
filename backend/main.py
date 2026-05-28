@@ -169,9 +169,13 @@ async def generate(request: RecipeRequest, raw_request: Request):
 
             generation_time = round(time.time() - start_time, 2)
 
+            title_match = re.search(r'<title>([^<]+)</title>', html_content)
+            recipe_title = title_match.group(1) if title_match else None
+
             result = supabase.table("recipe_generations").insert({
                 "session_id": request.session_id,
                 "recipe_url": request.url,
+                "recipe_title": recipe_title,
                 "output_html": html_content,
                 "downloaded": False,
                 "user_agent": user_agent,
@@ -225,6 +229,38 @@ async def cancel():
     if current_generation_task and not current_generation_task.done():
         current_generation_task.cancel()
     return {"status": "cancelled"}
+
+@app.get("/recipes")
+async def get_recipes():
+    """Get a lightweight list of all recipes, ordered by newest first."""
+    try:
+        result = supabase.table("recipe_generations") \
+            .select("id,recipe_title,recipe_url,created_at") \
+            .order("created_at", desc=True) \
+            .execute()
+        return result.data
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/recipes/{recipe_id}")
+async def get_recipe(recipe_id: str):
+    """Get the full recipe details including HTML content."""
+    try:
+        result = supabase.table("recipe_generations") \
+            .select("id,recipe_title,recipe_url,output_html") \
+            .eq("id", recipe_id) \
+            .execute()
+
+        if not result.data:
+            raise HTTPException(status_code=404, detail="Recipe not found")
+
+        return result.data[0]
+    except HTTPException:
+        raise
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # @app.post("/test")

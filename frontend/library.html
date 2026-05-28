@@ -5,9 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recipe Library - Spoken Spoon</title>
     <link rel="stylesheet" href="./css/style.css">
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css"
+    />
 </head>
 <body>
-    <nav>
+    <nav aria-label="Main navigation">
         <a href="index.html" class="navbar-brand">Spoken Spoon</a>
         <ul class="navbar-links">
             <li><a href="index.html">Home</a></li>
@@ -21,8 +31,19 @@
             <header>
                 <h1>Recipe Library</h1>
             </header>
+
+            <div id="loadingMessage" class="loading-message" role="status" aria-live="polite">
+                Loading recipes...
+            </div>
+
+            <div id="emptyState" class="empty-state" hidden>
+                <p>No recipes in your library yet. <a href="index.html">Create your first recipe</a>.</p>
+            </div>
+
+            <div id="recipeGrid" class="recipe-grid"></div>
         </section>
     </main>
 
+    <script src="./js/library.js"></script>
 </body>
 </html>

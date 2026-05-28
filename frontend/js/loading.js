@@ -26,23 +26,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     sessionStorage.removeItem('pendingRecipeURL');
 
-    // Handle quit button click
     quitButton.addEventListener('click', async () => {
         isAborted = true;
         quitButton.disabled = true;
         quitButton.textContent = 'Quitting...';
 
-        // Abort the fetch request
         if (abortController) {
             abortController.abort();
         }
 
-        // Tell the backend to cancel the task (don't await, just fire it off)
         fetch(`${API_BASE_URL}/cancel`, { method: 'POST' }).catch(err => {
             console.log("Cancel endpoint failed (this is okay):", err.message);
         });
 
-        // Redirect immediately without waiting
         window.location.href = 'index.html';
     });
 
@@ -88,10 +84,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                         const stepPercentages = {
                             0: 0,
                             1: 5,
-                            2: 20,
-                            3: 30,
+                            2: 10,
+                            3: 20,
                             4: 40,
-                            5: 50,
+                            5: 60,
                             6: 70,
                             7: 80
                         };
@@ -132,7 +128,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
     } catch (error) {
-        // Don't show error if user intentionally aborted
         if (error.name === 'AbortError' || isAborted) {
             console.log("Request was aborted by user");
             return;

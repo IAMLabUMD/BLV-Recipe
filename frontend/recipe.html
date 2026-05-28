@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe - Spoken Spoon</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css"
+    />
+</head>
+<body>
+    <nav aria-label="Main navigation">
+        <a href="index.html" class="navbar-brand">Spoken Spoon</a>
+        <ul class="navbar-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="library.html">Library</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        <section class="recipe-page-section">
+            <header>
+                <h1 id="recipeTitle">Loading...</h1>
+            </header>
+
+            <div id="loadingMessage" class="loading-message" role="status" aria-live="polite">
+                Loading recipe...
+            </div>
+
+            <section id="recipeActions" class="recipe-actions" hidden>
+                <div class="btn-group">
+                    <a id="originalRecipeLink" href="#" target="_blank" rel="noopener noreferrer" class="btn-secondary">
+                        <i class="ph ph-link-external"></i> Open Original Recipe
+                    </a>
+                    <button id="downloadBtn" class="btn-primary">
+                        <i class="ph ph-download"></i> Download Recipe
+                    </button>
+                    <a href="library.html" class="btn-secondary">
+                        <i class="ph ph-arrow-left"></i> Back to Library
+                    </a>
+                </div>
+            </section>
+
+            <div id="recipeDisplay" class="recipe-display" hidden>
+                <iframe id="recipeFrame" sandbox="allow-same-origin" title="Recipe content"></iframe>
+            </div>
+
+            <div id="errorMessage" class="recipe-error" hidden role="alert">
+                <p>Failed to load recipe.</p>
+                <p id="errorDetails" class="recipe-error-details"></p>
+            </div>
+        </section>
+    </main>
+
+    <script src="./js/recipe.js"></script>
+</body>
+</html>

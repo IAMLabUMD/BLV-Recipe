@@ -1,17 +1,13 @@
-const BACKEND_URL = '/generate';
-
 document.addEventListener('DOMContentLoaded', () => {
 
     const submitBtn = document.getElementById('submitBtn');
 
-    // Only run on pages that have the submit button
     if (!submitBtn) return;
 
     const recipeUrlInput = document.getElementById('recipeUrl');
     const errorMessage = document.getElementById('errorMessage');
     const floatingLabel = document.querySelector('.floating-label');
 
-    // Handle floating label visibility
     if (floatingLabel && recipeUrlInput) {
         const updateLabelPosition = () => {
             if (recipeUrlInput.value || document.activeElement === recipeUrlInput) {
