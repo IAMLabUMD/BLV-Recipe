@@ -9,6 +9,7 @@ from pathlib import Path
 from urllib import parse as urllib_parse
 import re
 import asyncio
+from supabase_client import supabase
 
 from pipeline.run_pipeline import run_pipeline
 from pipeline.step1_parse_recipe import run_step1
@@ -49,6 +50,7 @@ app.add_middleware(
 
 class RecipeRequest(BaseModel):
     url: str
+    session_id: str | None = None
 
 app.mount("/static", StaticFiles(directory="../frontend"), name="static")
 
@@ -95,10 +97,11 @@ def sse_message(event: str, data: dict) -> str:
     return f"event: {event}\ndata: {json.dumps(data)}\n\n"
 
 @app.post("/generate")
-async def generate(request: RecipeRequest):
+async def generate(request: RecipeRequest, raw_request: Request):
     global current_generation_task, generation_cancelled
     generation_cancelled = False
     current_generation_task = asyncio.current_task()
+    user_agent = raw_request.headers.get("user-agent")
 
     async def stream():
         global generation_cancelled
@@ -162,18 +165,51 @@ async def generate(request: RecipeRequest):
             with open(step7_output, "r", encoding="utf-8") as f:
                 html_content = f.read()
 
-            yield sse_message("complete", {"html": html_content})
+            result = supabase.table("recipe_generations").insert({
+                "session_id": request.session_id,
+                "recipe_url": request.url,
+                "output_html": html_content,
+                "downloaded": False,
+                "user_agent": user_agent,
+                "success": True
+            }).execute()
+
+            record_id = result.data[0]["id"]
+
+            yield sse_message("complete", {
+                "html": html_content,
+                "record_id": record_id
+})
 
         except asyncio.CancelledError:
             yield sse_message("cancelled", {"message": "Recipe generation was cancelled."})
         except Exception as e:
             traceback.print_exc()
+
+            supabase.table("recipe_generations").insert({
+                "session_id": request.session_id,
+                "recipe_url": request.url,
+                "downloaded": False,
+                "assistive_tech": request.assistive_tech,
+                "user_agent": user_agent,
+                "success": False
+            }).execute()
+
             yield sse_message("error", {"message": str(e)})
         finally:
             global current_generation_task
             current_generation_task = None
 
     return StreamingResponse(stream(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+@app.post("/mark-downloaded/{record_id}")
+async def mark_downloaded(record_id: str):
+    supabase.table("recipe_generations") \
+        .update({"downloaded": True}) \
+        .eq("id", record_id) \
+        .execute()
+
+    return {"success": True}
 
 @app.post("/cancel")
 async def cancel():

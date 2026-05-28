@@ -1,6 +1,7 @@
 const BACKEND_URL = '/generate';
 
 document.addEventListener('DOMContentLoaded', () => {
+
     const submitBtn = document.getElementById('submitBtn');
 
     // Only run on pages that have the submit button

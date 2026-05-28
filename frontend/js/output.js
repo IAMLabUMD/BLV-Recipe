@@ -1,5 +1,8 @@
+const API_BASE_URL = 'https://spokenspoon.onrender.com';
+
 document.addEventListener('DOMContentLoaded', () => {
     const recipeHTML = sessionStorage.getItem('recipeHTML');
+    const recipeRecordId = sessionStorage.getItem('recipeRecordId');
 
     if (!recipeHTML || recipeHTML.trim() === '') {
         window.location.href = 'index.html';
@@ -32,14 +35,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const anchor = document.createElement('a');
         anchor.href = URL.createObjectURL(blob);
         anchor.download = 'accessible-recipe.html';
-
-        // Programmatically click the anchor to trigger the download
         anchor.click();
 
-        // Clean up the temporary anchor and object URL
         URL.revokeObjectURL(anchor.href);
+
+        if (recipeRecordId) {
+            try {
+                await fetch(
+                    `${API_BASE_URL}/mark-downloaded/${recipeRecordId}`,
+                    {
+                        method: 'POST'
+                    }
+                );
+            } catch (err) {
+                console.log("Failed to mark download:", err);
+            }
+        }
     });
 
-    // Clear the recipeHTML from sessionStorage so it doesn't persist
     sessionStorage.removeItem('recipeHTML');
+    sessionStorage.removeItem('recipeRecordId');
 });

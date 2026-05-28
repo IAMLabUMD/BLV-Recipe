@@ -1,4 +1,12 @@
 const API_BASE_URL = 'https://spokenspoon.onrender.com';
+
+let sessionId = localStorage.getItem("session_id");
+
+if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem("session_id", sessionId);
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("loading.js started");
     const errorMessage = document.getElementById('errorMessage');
@@ -43,7 +51,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch(`${API_BASE_URL}/generate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: recipeUrl }),
+            body: JSON.stringify({
+                url: recipeUrl,
+                session_id: sessionId
+            }),
             signal: abortController.signal
         });
 
@@ -96,10 +107,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                     if (currentEvent === 'complete') {
                         let htmlContent = data.html;
+
                         if (htmlContent.startsWith('```html')) {
                             htmlContent = htmlContent.replace(/^```html\n/, '').replace(/\n```$/, '');
                         }
+
                         sessionStorage.setItem('recipeHTML', htmlContent);
+
+                        if (data.record_id) {
+                            sessionStorage.setItem('recipeRecordId', data.record_id);
+                        }
+
                         window.location.href = 'output.html';
                         return;
                     }
