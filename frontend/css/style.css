@@ -667,6 +667,21 @@ button.btn-primary:focus {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.recipe-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.recipe-card-header-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 1;
+  min-width: 0;
+}
+
 .recipe-card-title {
   font-size: var(--font-size-lg);
   font-weight: 600;
@@ -713,35 +728,43 @@ button.btn-primary:focus {
   outline-offset: var(--focus-outline-offset);
 }
 
-.btn-view-accessible {
+.btn-view-adapted {
   background-color: var(--color-primary);
   color: white;
   border: 2px solid var(--color-primary);
 }
 
-.btn-view-accessible:hover {
+.btn-view-adapted:hover {
   background-color: var(--color-primary-hover);
   border-color: var(--color-primary-hover);
 }
 
-.btn-view-accessible:focus {
+.btn-view-adapted:focus {
   outline: var(--focus-outline);
   outline-offset: var(--focus-outline-offset);
   background-color: var(--color-primary-focus);
   border-color: var(--color-primary-focus);
 }
 
-.btn-download {
+.btn-download-icon {
   background-color: transparent;
   color: var(--color-primary);
-  border: 2px solid var(--color-primary);
+  border: none;
+  padding: var(--spacing-xs);
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+  flex-shrink: 0;
 }
 
-.btn-download:hover {
-  background-color: var(--color-surface);
+.btn-download-icon:hover {
+  color: var(--color-primary-hover);
 }
 
-.btn-download:focus {
+.btn-download-icon:focus {
   outline: var(--focus-outline);
   outline-offset: var(--focus-outline-offset);
 }

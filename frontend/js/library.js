@@ -16,16 +16,32 @@ function createRecipeCard(recipe) {
   const card = document.createElement("article");
   card.className = "recipe-card";
 
+  const headerContainer = document.createElement("div");
+  headerContainer.className = "recipe-card-header";
+  card.appendChild(headerContainer);
+
+  const headerContent = document.createElement("div");
+  headerContent.className = "recipe-card-header-content";
+  headerContainer.appendChild(headerContent);
+
   const title = document.createElement("h2");
   title.className = "recipe-card-title";
   title.textContent = recipe.recipe_title || "Untitled Recipe";
-  card.appendChild(title);
+  headerContent.appendChild(title);
 
   const meta = document.createElement("p");
   meta.className = "recipe-card-meta";
   const createdDate = new Date(recipe.created_at).toLocaleDateString();
   meta.textContent = `Created: ${createdDate}`;
-  card.appendChild(meta);
+  headerContent.appendChild(meta);
+
+  // Button: Download accessible recipe (icon button in top right)
+  const downloadBtn = document.createElement("button");
+  downloadBtn.className = "btn-download-icon";
+  downloadBtn.setAttribute("aria-label", "Download recipe");
+  downloadBtn.innerHTML = '<i class="ph ph-download-simple"></i>';
+  downloadBtn.addEventListener("click", () => downloadRecipe(recipe));
+  headerContainer.appendChild(downloadBtn);
 
   const buttonsContainer = document.createElement("div");
   buttonsContainer.className = "recipe-card-buttons";
@@ -36,22 +52,15 @@ function createRecipeCard(recipe) {
   openOriginalBtn.target = "_blank";
   openOriginalBtn.rel = "noopener noreferrer";
   openOriginalBtn.className = "btn-open-original";
-  openOriginalBtn.innerHTML = '<i class="ph ph-link-external"></i> View Original';
+  openOriginalBtn.innerHTML = '<i class="ph ph-arrow-square-out"></i> Open Original';
   buttonsContainer.appendChild(openOriginalBtn);
 
-  // Button: View accessible recipe
-  const viewAccessibleBtn = document.createElement("a");
-  viewAccessibleBtn.href = `output.html?id=${recipe.id}`;
-  viewAccessibleBtn.className = "btn-view-accessible";
-  viewAccessibleBtn.innerHTML = '<i class="ph ph-book"></i> Read Accessible Recipe';
-  buttonsContainer.appendChild(viewAccessibleBtn);
-
-  // Button: Download accessible recipe
-  const downloadBtn = document.createElement("button");
-  downloadBtn.className = "btn-download";
-  downloadBtn.innerHTML = '<i class="ph ph-download"></i> Download HTML';
-  downloadBtn.addEventListener("click", () => downloadRecipe(recipe));
-  buttonsContainer.appendChild(downloadBtn);
+  // Button: View adapted recipe
+  const viewAdaptedBtn = document.createElement("a");
+  viewAdaptedBtn.href = `recipe.html?id=${recipe.id}`;
+  viewAdaptedBtn.className = "btn-view-adapted";
+  viewAdaptedBtn.innerHTML = '<i class="ph ph-book-open-text"></i> View Adapted Recipe';
+  buttonsContainer.appendChild(viewAdaptedBtn);
 
   card.appendChild(buttonsContainer);
 
@@ -59,7 +68,7 @@ function createRecipeCard(recipe) {
 }
 
 /**
- * Download the accessible recipe as an HTML file
+ * Download the adapted recipe as an HTML file
  */
 function downloadRecipe(recipe) {
   if (!recipe.id) {
