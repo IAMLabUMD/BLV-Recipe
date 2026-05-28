@@ -236,6 +236,7 @@ async def get_recipes():
     try:
         result = supabase.table("recipe_generations") \
             .select("id,recipe_title,recipe_url,created_at") \
+            .eq("success", True) \
             .order("created_at", desc=True) \
             .execute()
         return result.data
