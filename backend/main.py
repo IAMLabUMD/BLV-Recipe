@@ -9,6 +9,7 @@ from pathlib import Path
 from urllib import parse as urllib_parse
 import re
 import asyncio
+import time
 from supabase_client import supabase
 
 from pipeline.run_pipeline import run_pipeline
@@ -102,6 +103,7 @@ async def generate(request: RecipeRequest, raw_request: Request):
     generation_cancelled = False
     current_generation_task = asyncio.current_task()
     user_agent = raw_request.headers.get("user-agent")
+    start_time = time.time()
 
     async def stream():
         global generation_cancelled
@@ -165,12 +167,15 @@ async def generate(request: RecipeRequest, raw_request: Request):
             with open(step7_output, "r", encoding="utf-8") as f:
                 html_content = f.read()
 
+            generation_time = round(time.time() - start_time, 2)
+
             result = supabase.table("recipe_generations").insert({
                 "session_id": request.session_id,
                 "recipe_url": request.url,
                 "output_html": html_content,
                 "downloaded": False,
                 "user_agent": user_agent,
+                "generation_time_seconds": generation_time,
                 "success": True
             }).execute()
 
@@ -186,12 +191,14 @@ async def generate(request: RecipeRequest, raw_request: Request):
         except Exception as e:
             traceback.print_exc()
 
+            generation_time = round(time.time() - start_time, 2)
+
             supabase.table("recipe_generations").insert({
                 "session_id": request.session_id,
                 "recipe_url": request.url,
                 "downloaded": False,
-                "assistive_tech": request.assistive_tech,
                 "user_agent": user_agent,
+                "generation_time_seconds": generation_time,
                 "success": False
             }).execute()
 
