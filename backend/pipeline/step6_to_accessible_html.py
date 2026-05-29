@@ -89,12 +89,12 @@ def run_step6(step5_output_path: str | Path, output_dir: str | Path | None = Non
 
       5. Ingredients:
         - Create a section with <h2>Ingredients</h2>
-        - ALWAYS use an ordered list (<ol>) for ingredients
+        - ALWAYS use an unordered list (<ul>) for ingredients
         - Each ingredient must be its own <li>
 
         - If ingredients are grouped under subheadings:
           - Preserve them as <h3> subsections
-          - Each group must have its own <ol>
+          - Each group must have its own <ul>
 
       6. Instructions:
         - Create a section with <h2>Instructions</h2>
@@ -104,12 +104,14 @@ def run_step6(step5_output_path: str | Path, output_dir: str | Path | None = Non
             - Always label them sequentially as:
               <h3>Part 1: [Original Title]</h3>, <h3>Part 2: [Original Title]</h3>, etc.
             - Preserve the original subsection title after the Part number
+            - If the subsection title already includes "Part 1", "Part 2", etc., or "Step 1", "Step 2", etc., remove this so the label is not redundant.
             - If no subsection title exists, use only:
               <h3>Part 1</h3>, <h3>Part 2</h3>, etc.
 
         - Each step must:
           - Add a step heading: <h4>Step 1</h4>, <h4>Step 2</h4>, etc.
           - Place the instruction text in a <p> immediately after the heading
+          - Do not include the step heading if there is only one step in the subsection
 
         - Number steps continuously across all sections (do not reset numbering)
 

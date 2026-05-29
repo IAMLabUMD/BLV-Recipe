@@ -39,6 +39,7 @@ def run_step2(step1_output_path: str | Path, output_dir: str | Path | None = Non
         - Suggest specialized tools where helpful
         - Break steps down more granularly so nothing is assumed to be visually obvious
         - When a recipe tip is included, it must appear immediately after the step it relates to — never grouped at the end. Tips are optional and should only be added when they offer genuinely useful guidance for that specific step, such as an easier technique, a safety note, or a relevant substitution.
+        - Never include a long list of tools with no explanations at the beginning or end.
         - Convert all fractions into spoken form:
         ½ → a half
         ⅓ → a third
@@ -49,7 +50,8 @@ def run_step2(step1_output_path: str | Path, output_dir: str | Path | None = Non
         2 ⅓ → two and one third
         - Use full names for measurements (e.g. "tablespoons" instead of "tbsp")
         - The first time an ingredient is used in a step, state its full amount inline in spoken form (CORRECT: "Add the one thinly sliced onion and the three cloves of thinly sliced garlic to the pan." INCORRECT: "Add the thinly sliced onion and garlic to the pan"). For all subsequent steps that reference the same ingredient, omit the amount and refer to it naturally (e.g. "stir the pasta to prevent sticking"). Do not repeat amounts after the first use.
-            The final output must be a markdown file."""
+            The final output must be a markdown file.
+        - Never directly reference that this recipe is adapted for blind cooks. The recipe should feel natural and not call attention to the fact that it is adapted. Do not use phrases like "for blind cooks" or "visually impaired cooks" in the recipe steps."""
 
     USER_PROMPT = rf"""
         You will be shown examples of recipe pairs. In each pair, the sighted version and the blind-adapted version are for the same dish but are NOT exact matches — they may differ in ingredient amounts, number of steps, or specific ingredients used. This is intentional.
