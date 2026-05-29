@@ -42,14 +42,14 @@ function injectFontStyles(htmlContent) {
       }
     </style>
   `;
-    
+
     // Insert style tag after <head> opening tag
     const headMatch = htmlContent.match(/<head[^>]*>/i);
     if (headMatch) {
         const insertIndex = headMatch.index + headMatch[0].length;
         return htmlContent.slice(0, insertIndex) + fontStyle + htmlContent.slice(insertIndex);
     }
-    
+
     return htmlContent;
 }
 
@@ -62,13 +62,13 @@ function extractRecipeTitle(htmlContent) {
     if (titleMatch) {
         return titleMatch[1];
     }
-    
+
     // Try to extract from h1 with recipe-title id
     const h1Match = htmlContent.match(/<h1[^>]*id="recipe-title"[^>]*>([^<]+)<\/h1>/i);
     if (h1Match) {
         return h1Match[1];
     }
-    
+
     // Fallback
     return "Recipe";
 }
@@ -80,10 +80,10 @@ function displayRecipe() {
     // Extract and display the recipe title
     const title = extractRecipeTitle(currentRecipeHTML);
     recipeTitleEl.textContent = title;
-    
+
     // Show the recipe actions buttons
     recipeActionsEl.hidden = false;
-    
+
     // Inject font styles before displaying in iframe
     const styledHTML = injectFontStyles(currentRecipeHTML);
     recipeFrameEl.srcdoc = styledHTML;
