@@ -19,12 +19,22 @@
 <body>
     <nav aria-label="Main navigation">
         <a href="index.html" class="navbar-brand">Spoken Spoon</a>
-        <ul class="navbar-links">
+        <button
+            id="burgerMenuBtn"
+            class="burger-menu-btn"
+            aria-label="Toggle navigation menu"
+            aria-expanded="false"
+            aria-controls="navbarMenu"
+        >
+            <i class="ph ph-list" aria-hidden="true"></i>
+        </button>
+        <ul class="navbar-links" id="navbarMenu">
             <li><a href="index.html">Home</a></li>
             <li><a href="about.html">About</a></li>
             <li><a href="library.html" aria-current="page">Library</a></li>
         </ul>
     </nav>
+    <div id="menuBackdrop" class="menu-backdrop" aria-hidden="true"></div>
 
     <main class="container">
         <section class="library-page-section">
@@ -44,6 +54,8 @@
         </section>
     </main>
 
+    <script src="./js/burger-menu.js"></script>
+    <script src="./js/navbar.js"></script>
     <script src="./js/library.js"></script>
 </body>
 </html>

@@ -5,16 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About - Spoken Spoon</title>
     <link rel="stylesheet" href="./css/style.css">
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css"
+    />
 </head>
 <body>
-    <nav>
+    <nav aria-label="Main navigation">
         <a href="index.html" class="navbar-brand">Spoken Spoon</a>
-        <ul class="navbar-links">
+        <button
+            id="burgerMenuBtn"
+            class="burger-menu-btn"
+            aria-label="Toggle navigation menu"
+            aria-expanded="false"
+            aria-controls="navbarMenu"
+        >
+            <i class="ph ph-list" aria-hidden="true"></i>
+        </button>
+        <ul class="navbar-links" id="navbarMenu">
             <li><a href="index.html">Home</a></li>
             <li><a href="about.html" aria-current="page">About</a></li>
             <li><a href="library.html">Library</a></li>
         </ul>
     </nav>
+    <div id="menuBackdrop" class="menu-backdrop" aria-hidden="true"></div>
 
     <main class="container">
         <section class="about-page-section">
@@ -28,7 +48,7 @@
                     <figcaption>The Blind Kitchen</figcaption>
                 </figure>
                 <figure class="image-placeholder">
-                    <img src="./public/images/IAM_logo.png" alt="IAM Lab logo">
+                    <img src="./public/images/IAMLab.png" alt="IAM Lab logo">
                     <figcaption>IAM Lab</figcaption>
                 </figure>
             </section>
@@ -74,5 +94,8 @@
         </section>
     </main>
 
+    <script src="./js/burger-menu.js"></script>
+    <script src="./js/navbar.js"></script>
 </body>
+</html>
 </html>

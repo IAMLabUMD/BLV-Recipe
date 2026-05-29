@@ -5,22 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Adapted Recipe - The Blind Kitchen Recipe Adapter</title>
     <link rel="stylesheet" href="./css/style.css">
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css"
+    />
 </head>
 <body>
     <nav aria-label="Main navigation">
         <a href="index.html" class="navbar-brand">Spoken Spoon</a>
-        <ul class="navbar-links">
+        <button
+            id="burgerMenuBtn"
+            class="burger-menu-btn"
+            aria-label="Toggle navigation menu"
+            aria-expanded="false"
+            aria-controls="navbarMenu"
+        >
+            <i class="ph ph-list" aria-hidden="true"></i>
+        </button>
+        <ul class="navbar-links" id="navbarMenu">
             <li><a href="index.html">Home</a></li>
             <li><a href="about.html">About</a></li>
             <li><a href="library.html">Library</a></li>
         </ul>
     </nav>
+    <div id="menuBackdrop" class="menu-backdrop" aria-hidden="true"></div>
 
     <main class="container">
         <header>
                 <div class="recipe-title-container">
                   <h1 id="recipeTitle">Loading...</h1>
-                  <section id="recipeActions" class="recipe-actions" hidden>
+                  <div id="recipeActions" class="recipe-actions" hidden>
                     <div class="btn-group">
                         <a id="originalRecipeLink" href="#" target="_blank" rel="noopener noreferrer" class="btn-secondary">
                             <i class="ph ph-arrow-square-out"></i> Open Original Recipe
@@ -29,7 +49,7 @@
                             <i class="ph ph-download-simple"></i> Download Recipe
                         </button>
                     </div>
-                  </section>
+                  </div>
                 </div>
             </header>
         <header>
@@ -41,6 +61,8 @@
         </div>
     </main>
 
+    <script src="./js/burger-menu.js"></script>
+    <script src="./js/navbar.js"></script>
     <script src="./js/output.js"></script>
 </body>
 </html>
