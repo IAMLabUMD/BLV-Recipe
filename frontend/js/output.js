@@ -110,13 +110,13 @@ async function markRecipeDownloaded() {
 /**
  * Download the recipe as an HTML file
  */
-async function downloadRecipe() {
+async function downloadRecipe(recipeTitle) {
     const blob = new Blob([currentRecipeHTML], { type: "text/html" });
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement("a");
     link.href = url;
-    link.download = "accessible-recipe.html";
+    link.download = `${recipeTitle || "recipe"}.html`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -130,7 +130,7 @@ async function downloadRecipe() {
  */
 function setupEventListeners() {
     downloadBtnEl.addEventListener("click", () => {
-        downloadRecipe();
+        downloadRecipe(document.getElementById("recipeTitle").textContent);
     });
 }
 
