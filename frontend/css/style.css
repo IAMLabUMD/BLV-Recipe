@@ -573,7 +573,6 @@ input[type="text"]::placeholder {
 .about-page-section header {
   text-align: start;
   margin: 0 auto var(--spacing-2xl) auto;
-  max-width: 800px;
 }
 
 .about-page-section h1 {
@@ -586,14 +585,13 @@ input[type="text"]::placeholder {
   grid-template-columns: repeat(2, 1fr);
   gap: var(--spacing-lg);
   margin: 0 auto var(--spacing-2xl) auto;
-  max-width: 800px;
 }
 
 .image-placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
   margin: 0;
 }
 
@@ -627,7 +625,6 @@ input[type="text"]::placeholder {
 }
 
 .about-content {
-  max-width: 800px;
   margin: 0 auto;
 }
 
