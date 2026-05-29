@@ -13,6 +13,48 @@ document.addEventListener('DOMContentLoaded', function () {
     return;
   }
 
+  // Get all nav links
+  const navLinks = navbarMenu.querySelectorAll('a');
+
+  /**
+   * Check if we're on mobile by checking if burger button is displayed
+   */
+  function isMobileMenu() {
+    return window.getComputedStyle(burgerBtn).display !== 'none';
+  }
+
+  /**
+   * Hide/show links from tab order based on menu state
+   */
+  function updateTabindexForMobile() {
+    if (!isMobileMenu()) {
+      // Desktop: always ensure links are tabbable (remove tabindex) and visible
+      navLinks.forEach(link => {
+        link.removeAttribute('tabindex');
+      });
+      navbarMenu.removeAttribute('aria-hidden');
+      return;
+    }
+
+    // Mobile: check if menu is open
+    const isMenuOpen = navbarMenu.classList.contains('open');
+    navLinks.forEach(link => {
+      if (isMenuOpen) {
+        // Menu open: make links tabbable
+        link.removeAttribute('tabindex');
+      } else {
+        // Menu closed: hide from tab order
+        link.setAttribute('tabindex', '-1');
+      }
+    });
+
+    // Update aria-hidden based on menu state
+    navbarMenu.setAttribute('aria-hidden', !isMenuOpen);
+  }
+
+  // Initialize tabindex and aria-hidden on load
+  updateTabindexForMobile();
+
   /**
    * Toggle the mobile menu visibility
    */
@@ -43,6 +85,9 @@ document.addEventListener('DOMContentLoaded', function () {
         firstLink.focus();
       }
     }
+
+    // Update tabindex and aria-hidden based on new menu state
+    updateTabindexForMobile();
   }
 
   /**
@@ -59,6 +104,9 @@ document.addEventListener('DOMContentLoaded', function () {
     icon.classList.remove('ph-x');
     icon.classList.add('ph-list');
 
+    // Update tabindex and aria-hidden based on menu state
+    updateTabindexForMobile();
+
     burgerBtn.focus();
   }
 
@@ -66,7 +114,6 @@ document.addEventListener('DOMContentLoaded', function () {
   burgerBtn.addEventListener('click', toggleMenu);
 
   // Close menu when a link is clicked
-  const navLinks = navbarMenu.querySelectorAll('a');
   navLinks.forEach(link => {
     link.addEventListener('click', closeMenu);
   });
@@ -116,4 +163,7 @@ document.addEventListener('DOMContentLoaded', function () {
       closeMenu();
     }
   });
+
+  // Update tabindex when window is resized (mobile <-> desktop)
+  window.addEventListener('resize', updateTabindexForMobile);
 });
