@@ -171,11 +171,19 @@ nav {
 }
 
 .navbar-brand {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-2xl);
   font-weight: 600;
   color: var(--color-text);
   text-decoration: none;
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.navbar-brand img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
 }
 
 .navbar-brand:hover {
@@ -887,8 +895,12 @@ input[type="text"]::placeholder {
   }
 
   .navbar-brand {
-    font-size: var(--font-size-body);
+    font-size: var(--font-size-sm);
     flex-shrink: 0;
+  }
+
+  .navbar-brand img {
+    height: 32px;
   }
 
   .burger-menu-btn {
