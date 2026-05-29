@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     sessionStorage.removeItem('pendingRecipeURL');
+    sessionStorage.setItem('originalRecipeURL', recipeUrl);
 
     quitButton.addEventListener('click', async () => {
         isAborted = true;

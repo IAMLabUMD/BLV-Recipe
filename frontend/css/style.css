@@ -58,6 +58,12 @@ body {
   padding-top: var(--navbar-height);
 }
 
+/* ========== Hidden Elements ========== */
+[hidden] {
+  display: none !important;
+}
+
+
 /* ========== Typography ========== */
 h1 {
   font-size: var(--font-size-3xl);
@@ -510,10 +516,10 @@ input[type="text"]::placeholder {
 }
 
 .quit-button {
-
   background-color: transparent;
   color: var(--color-error);
   margin-top: var(--spacing-lg);
+  border: none;
 }
 
 .quit-button:hover:not(:disabled) {

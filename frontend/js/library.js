@@ -82,7 +82,8 @@ function createFeaturedRecipeCard(recipe) {
   const viewAdaptedBtn = document.createElement("a");
   viewAdaptedBtn.href = `recipe.html?example=${recipe.id}`;
   viewAdaptedBtn.className = "btn-view-adapted";
-  viewAdaptedBtn.innerHTML = '<i class="ph ph-book-open-text"></i> View Adapted Recipe';
+  viewAdaptedBtn.setAttribute("aria-label", `View ${recipe.title} on Spoken Spoon`);
+  viewAdaptedBtn.innerHTML = '<i class="ph ph-book-open-text"></i> View on Spoken Spoon';
   buttonsContainer.appendChild(viewAdaptedBtn);
 
   // Button: Open The Blind Kitchen
@@ -91,7 +92,8 @@ function createFeaturedRecipeCard(recipe) {
   openBlindKitchenBtn.target = "_blank";
   openBlindKitchenBtn.rel = "noopener noreferrer";
   openBlindKitchenBtn.className = "btn-open-original";
-  openBlindKitchenBtn.innerHTML = '<i class="ph ph-arrow-square-out"></i> Open The Blind Kitchen';
+  openBlindKitchenBtn.setAttribute("aria-label", `View ${recipe.title} on The Blind Kitchen`);
+  openBlindKitchenBtn.innerHTML = '<i class="ph ph-arrow-square-out"></i> View on The Blind Kitchen';
   buttonsContainer.appendChild(openBlindKitchenBtn);
 
   contentContainer.appendChild(buttonsContainer);
@@ -137,7 +139,7 @@ function createRecipeCard(recipe) {
   // Button: Download accessible recipe (icon button in top right)
   const downloadBtn = document.createElement("button");
   downloadBtn.className = "btn-download-icon";
-  downloadBtn.setAttribute("aria-label", "Download recipe");
+  downloadBtn.setAttribute("aria-label", `Download ${recipe.recipe_title || "recipe"}`);
   downloadBtn.innerHTML = '<i class="ph ph-download-simple"></i>';
   downloadBtn.addEventListener("click", () => downloadRecipe(recipe));
   headerContainer.appendChild(downloadBtn);
@@ -149,7 +151,8 @@ function createRecipeCard(recipe) {
   const viewAdaptedBtn = document.createElement("a");
   viewAdaptedBtn.href = `recipe.html?id=${recipe.id}`;
   viewAdaptedBtn.className = "btn-view-adapted";
-  viewAdaptedBtn.innerHTML = '<i class="ph ph-book-open-text"></i> View Adapted Recipe';
+  viewAdaptedBtn.setAttribute("aria-label", `View ${recipe.recipe_title || "recipe"} on Spoken Spoon`);
+  viewAdaptedBtn.innerHTML = '<i class="ph ph-book-open-text"></i> View on Spoken Spoon';
   buttonsContainer.appendChild(viewAdaptedBtn);
 
   // Button: Open original recipe
@@ -158,7 +161,8 @@ function createRecipeCard(recipe) {
   openOriginalBtn.target = "_blank";
   openOriginalBtn.rel = "noopener noreferrer";
   openOriginalBtn.className = "btn-open-original";
-  openOriginalBtn.innerHTML = '<i class="ph ph-arrow-square-out"></i> Open Original';
+  openOriginalBtn.setAttribute("aria-label", `View ${recipe.recipe_title || "recipe"} original recipe`);
+  openOriginalBtn.innerHTML = '<i class="ph ph-arrow-square-out"></i> View Original Recipe';
   buttonsContainer.appendChild(openOriginalBtn);
 
   card.appendChild(buttonsContainer);

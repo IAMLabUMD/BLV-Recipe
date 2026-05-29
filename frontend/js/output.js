@@ -21,10 +21,16 @@ let currentRecipeRecordId = null;
 function loadRecipeFromStorage() {
     currentRecipeHTML = sessionStorage.getItem("recipeHTML");
     currentRecipeRecordId = sessionStorage.getItem("recipeRecordId");
+    const originalRecipeURL = sessionStorage.getItem("originalRecipeURL");
 
     if (!currentRecipeHTML || currentRecipeHTML.trim() === "") {
         window.location.href = "index.html";
         return false;
+    }
+
+    // Set the original recipe link
+    if (originalRecipeURL) {
+        originalRecipeLinkEl.href = originalRecipeURL;
     }
 
     return true;

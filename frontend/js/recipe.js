@@ -125,9 +125,11 @@ async function loadRecipe() {
 
   try {
     let recipe;
+    let isExampleRecipe = false;
 
     if (params.example) {
       // Load example recipe from static file
+      isExampleRecipe = true;
       const exampleInfo = EXAMPLE_RECIPES[params.example];
       if (!exampleInfo) {
         throw new Error("Example recipe not found.");
@@ -171,9 +173,11 @@ async function loadRecipe() {
       originalRecipeLinkEl.hidden = false;
     }
 
-    if (currentRecipe.blindKitchenUrl) {
+    if (isExampleRecipe && currentRecipe.blindKitchenUrl) {
       blindKitchenLinkEl.href = currentRecipe.blindKitchenUrl;
       blindKitchenLinkEl.hidden = false;
+    } else {
+      blindKitchenLinkEl.hidden = true;
     }
 
     if (currentRecipe.output_html) {
