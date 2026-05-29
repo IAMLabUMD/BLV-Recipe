@@ -69,7 +69,7 @@ def run_step2(step1_output_path: str | Path, output_dir: str | Path | None = Non
         - How plating instructions include tactile spatial guidance
 
         The audience is blind and visually impaired adults who are competent home cooks. Do not over-explain basic cooking tasks unless there is a specific accessibility reason to do so.
-        Do not simplify by removing useful detail, but avoid unnecessary jargon, chef-specific terminology, or status-signaling language.
+        Be concise and clear in your explanations. Do not simplify by removing useful detail, but avoid unnecessary jargon, chef-specific terminology, or status-signaling language.
 
         ---EXAMPLE 1---
         SIGHTED VERSION:
