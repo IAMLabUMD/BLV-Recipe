@@ -22,15 +22,15 @@ from pipeline.step6_to_accessible_html import run_step6
 from pipeline.step7_add_tool_links import run_step7
 from pipeline.config import LLMConfig, LLMProvider, MODELS
 
-# LLMConfig.set_all_steps(
-#     provider=LLMProvider.ANTHROPIC,
-#     model=MODELS["claude-sonnet-4.6"],
-# )
-
 LLMConfig.set_all_steps(
-    provider=LLMProvider.GROQ,
-    model=MODELS["llama-3.3-70b"],
+    provider=LLMProvider.ANTHROPIC,
+    model=MODELS["claude-sonnet-4.6"],
 )
+
+# LLMConfig.set_all_steps(
+#     provider=LLMProvider.GROQ,
+#     model=MODELS["llama-3.3-70b"],
+# )
 
 app = FastAPI()
 
