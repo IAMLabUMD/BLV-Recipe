@@ -513,7 +513,7 @@ button.btn-primary:focus {
 }
 
 .quit-button:focus {
-  outline: var(--focus-outline);
+  outline: var(--color-error-bg);
   outline-offset: var(--focus-outline-offset);
 }
 
@@ -640,12 +640,6 @@ button.btn-primary:focus {
   font-size: var(--font-size-lg);
   color: var(--color-text-secondary);
   margin-bottom: var(--spacing-lg);
-}
-
-.loading-message {
-  text-align: center;
-  padding: var(--spacing-2xl) var(--spacing-lg);
-  color: var(--color-text-secondary);
 }
 
 .empty-state {

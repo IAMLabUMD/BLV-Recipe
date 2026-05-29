@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         recipeUrlInput.addEventListener('blur', updateLabelPosition);
     }
 
-    submitBtn.addEventListener('click', () => {
+    const handleSubmit = () => {
         errorMessage.textContent = '';
 
         const recipeUrl = recipeUrlInput.value.trim();
@@ -33,5 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         sessionStorage.setItem('pendingRecipeURL', recipeUrl);
         window.location.href = 'loading.html';
+    };
+
+    submitBtn.addEventListener('click', handleSubmit);
+
+    recipeUrlInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleSubmit();
+        }
     });
 });
