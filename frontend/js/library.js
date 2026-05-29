@@ -8,10 +8,109 @@ const API_BASE_URL = "https://spokenspoon.onrender.com";
 const loadingMessageEl = document.getElementById("loadingMessage");
 const emptyStateEl = document.getElementById("emptyState");
 const recipeGridEl = document.getElementById("recipeGrid");
+const featuredRecipeGridEl = document.getElementById("featuredRecipeGrid");
+
+
+const FEATURED_RECIPES = [
+  {
+    id: "shrimp-scampi",
+    title: "Shrimp Scampi",
+    imageUrl: "./public/images/example-recipes/shrimp-scampi.jpg",
+    originalRecipeUrl: "https://en.wikibooks.org/wiki/Cookbook:Garlic_Shrimp_Scampi_Pasta",
+    blindKitchenUrl: "https://theblindkitchen.com/shrimp-scampi/"
+  },
+  {
+    id: "key-lime-pie",
+    title: "Key Lime Pie",
+    imageUrl: "./public/images/example-recipes/key-lime-pie.jpg",
+    originalRecipeUrl: "https://en.wikibooks.org/wiki/Cookbook:Key_Lime_Meringue_Pie",
+    blindKitchenUrl: "https://theblindkitchen.com/key-lime-pie/"
+  },
+  {
+    id: "english-breakfast",
+    title: "English Breakfast",
+    imageUrl: "./public/images/example-recipes/english-breakfast.jpg",
+    originalRecipeUrl: "https://en.wikibooks.org/wiki/Cookbook:English_Breakfast",
+    blindKitchenUrl: "https://theblindkitchen.com/english-breakfast/"
+  },
+  {
+    id: "green-bean-casserole",
+    title: "Green Bean Casserole",
+    imageUrl: "./public/images/example-recipes/green-bean-casserole.jpg",
+    originalRecipeUrl: "https://en.wikibooks.org/wiki/Cookbook:Green_Bean_Casserole",
+    blindKitchenUrl: "https://theblindkitchen.com/traditional-green-bean-casserole/"
+  }
+];
 
 /**
- * Create a recipe card element
+ * Create a featured recipe card element
  */
+function createFeaturedRecipeCard(recipe) {
+  const card = document.createElement("article");
+  card.className = "recipe-card featured-recipe-card";
+
+  // Image container
+  const imageContainer = document.createElement("div");
+  imageContainer.className = "featured-recipe-image";
+  const image = document.createElement("img");
+  image.src = recipe.imageUrl;
+  image.alt = recipe.title;
+  imageContainer.appendChild(image);
+  card.appendChild(imageContainer);
+
+  const contentContainer = document.createElement("div");
+  contentContainer.className = "featured-recipe-content";
+  card.appendChild(contentContainer);
+
+  const headerContainer = document.createElement("div");
+  headerContainer.className = "recipe-card-header";
+  contentContainer.appendChild(headerContainer);
+
+  const headerContent = document.createElement("div");
+  headerContent.className = "recipe-card-header-content";
+  headerContainer.appendChild(headerContent);
+
+  const title = document.createElement("h3");
+  title.className = "recipe-card-title";
+  title.textContent = recipe.title;
+  headerContent.appendChild(title);
+
+  const buttonsContainer = document.createElement("div");
+  buttonsContainer.className = "recipe-card-buttons";
+
+  // Button: View adapted recipe
+  const viewAdaptedBtn = document.createElement("a");
+  viewAdaptedBtn.href = `recipe.html?example=${recipe.id}`;
+  viewAdaptedBtn.className = "btn-view-adapted";
+  viewAdaptedBtn.innerHTML = '<i class="ph ph-book-open-text"></i> View Adapted Recipe';
+  buttonsContainer.appendChild(viewAdaptedBtn);
+
+  // Button: Open The Blind Kitchen
+  const openBlindKitchenBtn = document.createElement("a");
+  openBlindKitchenBtn.href = recipe.blindKitchenUrl;
+  openBlindKitchenBtn.target = "_blank";
+  openBlindKitchenBtn.rel = "noopener noreferrer";
+  openBlindKitchenBtn.className = "btn-open-original";
+  openBlindKitchenBtn.innerHTML = '<i class="ph ph-arrow-square-out"></i> Open The Blind Kitchen';
+  buttonsContainer.appendChild(openBlindKitchenBtn);
+
+  contentContainer.appendChild(buttonsContainer);
+
+  return card;
+}
+
+/**
+ * Render featured recipes
+ */
+function renderFeaturedRecipes() {
+  featuredRecipeGridEl.innerHTML = "";
+  FEATURED_RECIPES.forEach((recipe) => {
+    const card = createFeaturedRecipeCard(recipe);
+    featuredRecipeGridEl.appendChild(card);
+  });
+}
+
+
 function createRecipeCard(recipe) {
   const card = document.createElement("article");
   card.className = "recipe-card";
@@ -139,4 +238,7 @@ async function loadRecipes() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", loadRecipes);
+document.addEventListener("DOMContentLoaded", () => {
+  renderFeaturedRecipes();
+  loadRecipes();
+});

@@ -11,18 +11,50 @@ const recipeActionsEl = document.getElementById("recipeActions");
 const recipeDisplayEl = document.getElementById("recipeDisplay");
 const recipeFrameEl = document.getElementById("recipeFrame");
 const originalRecipeLinkEl = document.getElementById("originalRecipeLink");
+const blindKitchenLinkEl = document.getElementById("blindKitchenLink");
 const downloadBtnEl = document.getElementById("downloadBtn");
 const errorMessageEl = document.getElementById("errorMessage");
 const errorDetailsEl = document.getElementById("errorDetails");
 
 let currentRecipe = null;
 
+// Example recipes mapping
+const EXAMPLE_RECIPES = {
+  "shrimp-scampi": {
+    title: "Shrimp Scampi",
+    file: "example-recipes/shrimp-scampi.html",
+    originalRecipeUrl: "https://en.wikibooks.org/wiki/Cookbook:Garlic_Shrimp_Scampi_Pasta",
+    blindKitchenUrl: "https://theblindkitchen.com/shrimp-scampi/"
+  },
+  "key-lime-pie": {
+    title: "Key Lime Pie",
+    file: "example-recipes/key-lime-pie.html",
+    originalRecipeUrl: "https://en.wikibooks.org/wiki/Cookbook:Key_Lime_Meringue_Pie",
+    blindKitchenUrl: "https://theblindkitchen.com/key-lime-pie/"
+  },
+  "english-breakfast": {
+    title: "English Breakfast",
+    file: "example-recipes/english-breakfast.html",
+    originalRecipeUrl: "https://en.wikibooks.org/wiki/Cookbook:English_Breakfast",
+    blindKitchenUrl: "https://theblindkitchen.com/english-breakfast/"
+  },
+  "green-bean-casserole": {
+    title: "Green Bean Casserole",
+    file: "example-recipes/green-bean-casserole.html",
+    originalRecipeUrl: "https://en.wikibooks.org/wiki/Cookbook:Green_Bean_Casserole",
+    blindKitchenUrl: "https://theblindkitchen.com/traditional-green-bean-casserole/"
+  }
+};
+
 /**
- * Extract recipe ID from URL query parameter
+ * Extract recipe parameters from URL
  */
-function getRecipeIdFromUrl() {
+function getRecipeParametersFromUrl() {
   const params = new URLSearchParams(window.location.search);
-  return params.get("id");
+  return {
+    id: params.get("id"),
+    example: params.get("example")
+  };
 }
 
 /**
@@ -69,14 +101,14 @@ function injectFontStyles(htmlContent) {
       }
     </style>
   `;
-  
+
   // Insert style tag after <head> opening tag
   const headMatch = htmlContent.match(/<head[^>]*>/i);
   if (headMatch) {
     const insertIndex = headMatch.index + headMatch[0].length;
     return htmlContent.slice(0, insertIndex) + fontStyle + htmlContent.slice(insertIndex);
   }
-  
+
   return htmlContent;
 }
 
@@ -84,24 +116,50 @@ function injectFontStyles(htmlContent) {
  * Load and display a single recipe
  */
 async function loadRecipe() {
-  const recipeId = getRecipeIdFromUrl();
+  const params = getRecipeParametersFromUrl();
 
-  if (!recipeId) {
-    showError("No recipe ID provided. Please select a recipe from the library.");
+  if (!params.id && !params.example) {
+    showError("No recipe provided. Please select a recipe from the library.");
     return;
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/recipes/${recipeId}`);
+    let recipe;
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw new Error("Recipe not found.");
+    if (params.example) {
+      // Load example recipe from static file
+      const exampleInfo = EXAMPLE_RECIPES[params.example];
+      if (!exampleInfo) {
+        throw new Error("Example recipe not found.");
       }
-      throw new Error(`Failed to fetch recipe: ${response.statusText}`);
+
+      const response = await fetch(exampleInfo.file);
+      if (!response.ok) {
+        throw new Error(`Failed to load example recipe: ${response.statusText}`);
+      }
+
+      const htmlContent = await response.text();
+      recipe = {
+        recipe_title: exampleInfo.title,
+        output_html: htmlContent,
+        recipe_url: exampleInfo.originalRecipeUrl,
+        blindKitchenUrl: exampleInfo.blindKitchenUrl
+      };
+    } else {
+      // Load database recipe
+      const response = await fetch(`${API_BASE_URL}/recipes/${params.id}`);
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error("Recipe not found.");
+        }
+        throw new Error(`Failed to fetch recipe: ${response.statusText}`);
+      }
+
+      recipe = await response.json();
     }
 
-    currentRecipe = await response.json();
+    currentRecipe = recipe;
 
     loadingMessageEl.hidden = true;
 
@@ -111,6 +169,11 @@ async function loadRecipe() {
     if (currentRecipe.recipe_url) {
       originalRecipeLinkEl.href = currentRecipe.recipe_url;
       originalRecipeLinkEl.hidden = false;
+    }
+
+    if (currentRecipe.blindKitchenUrl) {
+      blindKitchenLinkEl.href = currentRecipe.blindKitchenUrl;
+      blindKitchenLinkEl.hidden = false;
     }
 
     if (currentRecipe.output_html) {

@@ -177,7 +177,7 @@ class LLMClient:
         """Make an Anthropic API call."""
         kwargs = {
             "model": self.model,
-            "max_tokens": max_tokens or 4096,
+            "max_tokens": max_tokens or 6096,
             "system": system,
             "messages": [
                 {"role": "user", "content": user_message}

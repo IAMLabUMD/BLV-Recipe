@@ -2,9 +2,9 @@
 
 /* ========== CSS Custom Properties ========== */
 :root {
-  --color-primary: #094419;
-  --color-primary-hover: #1e6932;
-  --color-primary-focus: #125b26;
+  --color-primary: #032B60;
+  --color-primary-hover: #144382;
+  --color-primary-focus: #144382;
   --color-background: #ffffff;
   --color-surface: #f9fafb;
   --color-border: #cdd0d5;
@@ -797,6 +797,69 @@ input[type="text"]::placeholder {
 .recipe-load-error p {
   margin-bottom: var(--spacing-sm);
 }
+
+/* ========== Featured Recipe Cards ========== */
+.featured-recipes-section {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.featured-recipes-section h2 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-xs);
+}
+
+.featured-recipes-section > p {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-lg);
+}
+
+.user-recipes-section {
+  margin-top: var(--spacing-2xl);
+  padding-top: var(--spacing-2xl);
+  border-top: 1px solid var(--color-border);
+}
+
+.user-recipes-section h2 {
+  margin-top: 0;
+}
+
+.featured-recipe-card {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.featured-recipe-image {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  background-color: var(--color-surface);
+}
+
+.featured-recipe-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.featured-recipe-content {
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.featured-recipe-card .recipe-card-title {
+  font-size: var(--font-size-lg);
+  margin: 0;
+}
+
+.featured-recipe-card .recipe-card-buttons {
+  margin-top: auto;
+}
+
 
 .recipe-load-error-details {
   font-size: var(--font-size-sm);
